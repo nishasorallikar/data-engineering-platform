@@ -1,0 +1,949 @@
+{
+  "id": "voltgrid-au",
+  "slug": "voltgrid-au",
+  "title": "VoltGrid AU",
+  "domain": "EV Charging Infrastructure & Fleet Intelligence",
+  "summary": "Australia EV Charging Franchise Intelligence Platform",
+  "businessProblem": [
+    "No centralised visibility across franchise stations.",
+    "Revenue leakage from billing mismatches.",
+    "No real-time charger health monitoring.",
+    "No predictive maintenance.",
+    "Invoice tracking scattered across email and PDFs.",
+    "No geo-drill from Australia → State → City → Station → Charger level."
+  ],
+  "architecture": {
+    "type": "Medallion Lakehouse",
+    "cloud": "Microsoft Azure",
+    "flow": "Source Systems → Ingestion → Bronze → Silver → Gold → Serving"
+  },
+  "sourceSystems": [
+    {
+      "name": "IoT Charger Telemetry (OCPP)",
+      "format": "JSON stream",
+      "ingestionPath": "Event Hub → Databricks Streaming",
+      "frequency": "Near real-time (1–3 sec)"
+    },
+    {
+      "name": "Charging Sessions DB",
+      "format": "CSV",
+      "ingestionPath": "ADF Copy",
+      "frequency": "Daily"
+    },
+    {
+      "name": "Payment Gateway",
+      "format": "JSON / REST API",
+      "ingestionPath": "ADF REST connector",
+      "frequency": "Daily"
+    },
+    {
+      "name": "Customer Master (CRM)",
+      "format": "CSV",
+      "ingestionPath": "ADF Copy",
+      "frequency": "Daily"
+    },
+    {
+      "name": "Vehicle Master",
+      "format": "CSV",
+      "ingestionPath": "ADF Copy",
+      "frequency": "Daily"
+    },
+    {
+      "name": "Station Master",
+      "format": "CSV",
+      "ingestionPath": "ADF Copy",
+      "frequency": "Weekly"
+    },
+    {
+      "name": "Charger Master",
+      "format": "CSV",
+      "ingestionPath": "ADF Copy",
+      "frequency": "Weekly"
+    },
+    {
+      "name": "Franchise Partners",
+      "format": "CSV",
+      "ingestionPath": "ADF Copy",
+      "frequency": "Weekly"
+    },
+    {
+      "name": "Charge Cards",
+      "format": "CSV",
+      "ingestionPath": "ADF Copy",
+      "frequency": "Daily"
+    },
+    {
+      "name": "Complaints",
+      "format": "CSV",
+      "ingestionPath": "ADF Copy",
+      "frequency": "Daily"
+    },
+    {
+      "name": "Employee Master",
+      "format": "CSV",
+      "ingestionPath": "ADF Copy",
+      "frequency": "Weekly"
+    },
+    {
+      "name": "Invoice Metadata",
+      "format": "CSV",
+      "ingestionPath": "ADF Copy",
+      "frequency": "Daily"
+    },
+    {
+      "name": "Invoice PDFs",
+      "format": "PDF / Blob",
+      "ingestionPath": "Logic Apps + Document Intelligence",
+      "frequency": "On arrival"
+    },
+    {
+      "name": "Tariff Master",
+      "format": "CSV / SCD2",
+      "ingestionPath": "ADF Copy",
+      "frequency": "On change"
+    },
+    {
+      "name": "Maintenance Events",
+      "format": "CSV",
+      "ingestionPath": "ADF Copy",
+      "frequency": "Daily"
+    },
+    {
+      "name": "Fleet Usage",
+      "format": "JSON / REST API",
+      "ingestionPath": "ADF REST connector",
+      "frequency": "Daily"
+    },
+    {
+      "name": "Weather API",
+      "format": "JSON / REST API",
+      "ingestionPath": "ADF REST connector",
+      "frequency": "Hourly"
+    },
+    {
+      "name": "Customer Support Tickets",
+      "format": "XML",
+      "ingestionPath": "ADF Copy",
+      "frequency": "Daily"
+    },
+    {
+      "name": "Grid Power Status",
+      "format": "XML",
+      "ingestionPath": "ADF Copy",
+      "frequency": "Hourly"
+    },
+    {
+      "name": "Station Audit Logs",
+      "format": "XML",
+      "ingestionPath": "ADF Copy",
+      "frequency": "Daily"
+    },
+    {
+      "name": "Charger Fault Stream",
+      "format": "JSON stream",
+      "ingestionPath": "Event Hub → Databricks Streaming",
+      "frequency": "Real-time"
+    },
+    {
+      "name": "Connector Status Stream",
+      "format": "JSON stream",
+      "ingestionPath": "Event Hub → Databricks Streaming",
+      "frequency": "Real-time"
+    },
+    {
+      "name": "Charging Session Events",
+      "format": "JSON stream",
+      "ingestionPath": "Event Hub → Databricks Streaming",
+      "frequency": "Real-time"
+    },
+    {
+      "name": "Live Payment Status",
+      "format": "JSON stream",
+      "ingestionPath": "Event Hub → Databricks Streaming",
+      "frequency": "Real-time"
+    },
+    {
+      "name": "RFID Card Scan Events",
+      "format": "JSON stream",
+      "ingestionPath": "Event Hub → Databricks Streaming",
+      "frequency": "Real-time"
+    },
+    {
+      "name": "Station Utilisation Stream",
+      "format": "JSON stream",
+      "ingestionPath": "Event Hub → Databricks Streaming",
+      "frequency": "Real-time"
+    },
+    {
+      "name": "Weather Alert Stream",
+      "format": "JSON stream",
+      "ingestionPath": "Event Hub → Databricks Streaming",
+      "frequency": "Real-time"
+    },
+    {
+      "name": "Fleet Live Trip Stream",
+      "format": "JSON stream",
+      "ingestionPath": "Event Hub → Databricks Streaming",
+      "frequency": "Real-time"
+    }
+  ],
+  "ingestion": [
+    "Streaming Path: IoT Chargers (OCPP) → Azure IoT Hub → Azure Event Hubs → Databricks Structured Streaming → Bronze Delta.",
+    "Batch Path: CSV / XML files → ADF Copy Activity → ADLS Bronze; REST APIs → ADF REST Connector → ADLS Bronze JSON.",
+    "PDF Invoice Path: Email attachment → Logic Apps → Blob Storage → Azure AI Document Intelligence → ADLS Bronze JSON.",
+    "CDC Path (future / RDBMS): ADF CDC connector or Debezium → Event Hub → Bronze.",
+    "Patterns: High-watermark incremental load, Exactly-once streaming, Schema evolution, Retry + exponential backoff, Quarantine routing."
+  ],
+  "processing": [
+    "Bronze Layer: Immutable raw replica of every source record. No transformations. Delta Lake format. Source-date partitioning. 90 days retention.",
+    "Silver Layer: Cleansed & Standardised. Validated and deduplicated data. Idempotent MERGE / upsert. SCD Type 2 handling. Fault Code Mapping. GST Split."
+  ],
+  "storage": [
+    "ADLS Gen2 — BRONZE (Raw Delta)",
+    "ADLS Gen2 — SILVER (Cleansed / Standardised Delta)",
+    "ADLS Gen2 — GOLD (Business Curated)"
+  ],
+  "serving": [
+    "Azure Synapse Analytics (External tables, Serverless SQL, Dedicated SQL pool)",
+    "Power BI (DirectQuery and Import mode, 14 dashboard views, RLS)",
+    "Azure Cosmos DB + APIs (Low-latency operational reads, fleet web/mobile APIs)"
+  ],
+  "dataQuality": [
+    "Bronze → Silver: Schema check, Null check, Duplicate check, Range check, Referential check, Freshness check, Business rule.",
+    "Silver → Gold: Reconciliation check, SCD2 continuity check, Aggregation sanity check, Rejected records quarantine, DQ metrics audit table."
+  ],
+  "security": [
+    "Microsoft Entra ID for identities.",
+    "Managed Identity for service-to-service authentication.",
+    "Azure RBAC on ADLS containers.",
+    "Azure Key Vault stores API keys, DB connection strings and storage secrets.",
+    "Customer email is hashed in Silver/Gold. Card PAN is masked. CVV is discarded.",
+    "ADLS Gen2 platform encryption. HTTPS / TLS 1.2+ enforced.",
+    "Power BI / Synapse row-level security (Executive, State Manager, Franchise Owner)."
+  ],
+  "orchestration": [
+    "Azure Data Factory (Parameterised pipelines, Azure SQL watermark table, Pipeline audit).",
+    "Databricks Jobs (Bronze → Silver domain jobs, Silver → Gold DLT/notebook clusters, Always-on streaming jobs).",
+    "Azure DevOps CI/CD (Dev → QA → UAT → Prod. PR gate: linting, unit tests, DQ checks)."
+  ],
+  "monitoring": [
+    "Azure Monitor + Log Analytics (ADF pipeline failures, Data volume anomaly)",
+    "Databricks metrics (Streaming lag > 5 min)",
+    "Custom DQ audit table (Data freshness - No new rows in last 2 hours)",
+    "Databricks streaming alert (Charger overheating >75°C, Payment failure spike >10% in 5-min window)",
+    "Logic App timer (Pipeline SLA breach)",
+    "Azure Cost Management (Storage cost)",
+    "Synapse / Power BI (Query performance >30 seconds)"
+  ],
+  "technologies": [
+    "Azure IoT Hub",
+    "Azure Event Hubs",
+    "Azure Data Factory",
+    "Azure Logic Apps",
+    "Azure Blob Storage",
+    "Azure AI Document Intelligence",
+    "ADLS Gen2",
+    "Azure Databricks",
+    "Delta Lake",
+    "Azure Synapse Analytics",
+    "Azure Cosmos DB",
+    "Azure Key Vault",
+    "Microsoft Entra ID",
+    "Azure Monitor + Log Analytics",
+    "Azure Functions",
+    "Azure Communication Services",
+    "Microsoft Teams Webhook",
+    "Azure DevOps",
+    "Power BI"
+  ],
+  "scenarios": [
+    {
+      "layer": "Bronze",
+      "scenario": "Raw IoT telemetry preserved for replay",
+      "handling": "Append-only Delta; never modified"
+    },
+    {
+      "layer": "Bronze",
+      "scenario": "Corrupt / malformed JSON",
+      "handling": "_is_corrupt = TRUE; quarantine"
+    },
+    {
+      "layer": "Bronze",
+      "scenario": "Non-standard XML encoding",
+      "handling": "ADF XML connector; stored as raw JSON"
+    },
+    {
+      "layer": "Bronze",
+      "scenario": "PDF invoice arrives by email",
+      "handling": "Logic Apps → Blob → extracted JSON"
+    },
+    {
+      "layer": "Bronze",
+      "scenario": "API schema drift",
+      "handling": "Auto Loader schema evolution"
+    },
+    {
+      "layer": "Bronze",
+      "scenario": "Duplicate IoT resend",
+      "handling": "Stored as-is; dedup happens in Silver"
+    },
+    {
+      "layer": "Bronze",
+      "scenario": "Late-arriving batch file",
+      "handling": "Partition by source date, not load date"
+    },
+    {
+      "layer": "Bronze",
+      "scenario": "Restricted card data",
+      "handling": "Separate path + RBAC"
+    },
+    {
+      "layer": "Bronze",
+      "scenario": "Pipeline audit trail",
+      "handling": "Ingestion timestamp, source and run ID metadata"
+    },
+    {
+      "layer": "Silver",
+      "scenario": "Duplicate telemetry",
+      "handling": "Dedup on charger_id + event_ts + connector_id; keep latest",
+      "codeSnippet": {
+        "language": "sql",
+        "code": "MERGE INTO silver.telemetry AS target\nUSING (\n  SELECT * FROM bronze.telemetry \n  QUALIFY ROW_NUMBER() OVER (PARTITION BY charger_id, event_ts ORDER BY load_time DESC) = 1\n) AS source\nON target.charger_id = source.charger_id AND target.event_ts = source.event_ts\nWHEN NOT MATCHED THEN INSERT *;"
+      }
+    },
+    {
+      "layer": "Silver",
+      "scenario": "12-minute-late event",
+      "handling": "Quarantine beyond 10-minute watermark",
+      "codeSnippet": {
+        "language": "python",
+        "code": "streaming_df.withWatermark(\"event_timestamp\", \"10 minutes\") \\\n  .groupBy(window(\"event_timestamp\", \"5 minutes\"), \"charger_id\") \\\n  .count()"
+      }
+    },
+    {
+      "layer": "Silver",
+      "scenario": "OVERTEMP fault",
+      "handling": "Map to Overheating Risk and set overheating flag"
+    },
+    {
+      "layer": "Silver",
+      "scenario": "82°C charger",
+      "handling": "Overheating flag + maintenance event"
+    },
+    {
+      "layer": "Silver",
+      "scenario": "Raw card number",
+      "handling": "PAN masked; CVV discarded; token retained"
+    },
+    {
+      "layer": "Silver",
+      "scenario": "AEST timestamp",
+      "handling": "Convert to UTC; retain reporting equivalent"
+    },
+    {
+      "layer": "Silver",
+      "scenario": "Tariff rate changed",
+      "handling": "Close old SCD2 row and open new row",
+      "codeSnippet": {
+        "language": "sql",
+        "code": "-- SCD Type 2 Update\nUPDATE silver.dim_tariff\nSET is_current = FALSE, valid_to = CURRENT_TIMESTAMP()\nWHERE tariff_id = source.tariff_id AND is_current = TRUE;"
+      }
+    },
+    {
+      "layer": "Silver",
+      "scenario": "P1 complaint >4 hours",
+      "handling": "SLA breach derived"
+    },
+    {
+      "layer": "Silver",
+      "scenario": "Null station_id",
+      "handling": "Quarantine with rejection reason"
+    },
+    {
+      "layer": "Gold",
+      "scenario": "Billing mismatch",
+      "handling": "mart_billing_reconciliation with MISMATCH + difference_amount"
+    },
+    {
+      "layer": "Gold",
+      "scenario": "Geo drill-down",
+      "handling": "DimCountry → DimState → DimCity → DimStation"
+    },
+    {
+      "layer": "Gold",
+      "scenario": "Historical tariff analysis",
+      "handling": "Fact session joined to DimTariff effective dates"
+    },
+    {
+      "layer": "Gold",
+      "scenario": "Franchise data isolation",
+      "handling": "Power BI RLS by partner"
+    },
+    {
+      "layer": "Gold",
+      "scenario": "Live charging session",
+      "handling": "Fact session + Cosmos DB low-latency serving"
+    },
+    {
+      "layer": "Gold",
+      "scenario": "Offline complaint spike",
+      "handling": "Complaints correlated with maintenance"
+    },
+    {
+      "layer": "Gold",
+      "scenario": "Revenue by payment method",
+      "handling": "FactPayments grouped by card/payment type"
+    },
+    {
+      "layer": "Gold",
+      "scenario": "Predictive maintenance",
+      "handling": "Risk mart using overheating/fault signals"
+    },
+    {
+      "layer": "Gold",
+      "scenario": "CO2 saved",
+      "handling": "Energy consumption × Australian grid factor"
+    },
+    {
+      "layer": "Gold",
+      "scenario": "Franchise performance",
+      "handling": "Revenue, uptime and complaints per partner"
+    },
+    {
+      "layer": "Gold",
+      "scenario": "Overdue invoices",
+      "handling": "Days outstanding + overdue flag"
+    },
+    {
+      "layer": "Gold",
+      "scenario": "Peak-hour demand",
+      "handling": "FactEnergyConsumption by hour and weekday"
+    },
+    {
+      "layer": "Gold",
+      "scenario": "Station recommendation",
+      "handling": "Geo coverage / uncovered demand zones"
+    },
+    {
+      "layer": "Gold",
+      "scenario": "Vehicle mix for charger planning",
+      "handling": "Vehicle model → connector preference"
+    },
+    {
+      "layer": "Gold",
+      "scenario": "Fast vs slow charger utilisation",
+      "handling": "Energy consumption joined to charger power band"
+    }
+  ],
+  "dataModel": {
+    "dimensions": [
+      {
+        "name": "DimCountry",
+        "grain": "Country",
+        "scd": "Type 1",
+        "examples": "country_key, country_name, country_code",
+        "columns": [
+          {
+            "name": "country_key",
+            "type": "INT",
+            "isPrimary": true
+          },
+          {
+            "name": "country_id",
+            "type": "VARCHAR(255)"
+          },
+          {
+            "name": "created_at",
+            "type": "TIMESTAMP"
+          }
+        ]
+      },
+      {
+        "name": "DimState",
+        "grain": "AU State/Territory",
+        "scd": "Type 1",
+        "examples": "state_key, state_code, state_name",
+        "columns": [
+          {
+            "name": "state_key",
+            "type": "INT",
+            "isPrimary": true
+          },
+          {
+            "name": "state_id",
+            "type": "VARCHAR(255)"
+          },
+          {
+            "name": "created_at",
+            "type": "TIMESTAMP"
+          }
+        ]
+      },
+      {
+        "name": "DimCity",
+        "grain": "City",
+        "scd": "Type 1",
+        "examples": "city_key, city_name, state_key, postcode",
+        "columns": [
+          {
+            "name": "city_key",
+            "type": "INT",
+            "isPrimary": true
+          },
+          {
+            "name": "city_id",
+            "type": "VARCHAR(255)"
+          },
+          {
+            "name": "created_at",
+            "type": "TIMESTAMP"
+          }
+        ]
+      },
+      {
+        "name": "DimStation",
+        "grain": "Station",
+        "scd": "Type 1",
+        "examples": "station_key, station_id, city_key, status, lat, lng",
+        "columns": [
+          {
+            "name": "station_key",
+            "type": "INT",
+            "isPrimary": true
+          },
+          {
+            "name": "station_id",
+            "type": "VARCHAR(255)"
+          },
+          {
+            "name": "created_at",
+            "type": "TIMESTAMP"
+          }
+        ]
+      },
+      {
+        "name": "DimCharger",
+        "grain": "Charger",
+        "scd": "Type 2",
+        "examples": "charger_key, charger_id, connector_type, max_kw, firmware",
+        "columns": [
+          {
+            "name": "charger_key",
+            "type": "INT",
+            "isPrimary": true
+          },
+          {
+            "name": "charger_id",
+            "type": "VARCHAR(255)"
+          },
+          {
+            "name": "created_at",
+            "type": "TIMESTAMP"
+          }
+        ]
+      },
+      {
+        "name": "DimCustomer",
+        "grain": "Customer",
+        "scd": "Type 2",
+        "examples": "customer_key, customer_id, loyalty_tier",
+        "columns": [
+          {
+            "name": "customer_key",
+            "type": "INT",
+            "isPrimary": true
+          },
+          {
+            "name": "customer_id",
+            "type": "VARCHAR(255)"
+          },
+          {
+            "name": "created_at",
+            "type": "TIMESTAMP"
+          }
+        ]
+      },
+      {
+        "name": "DimVehicle",
+        "grain": "Vehicle",
+        "scd": "Type 1",
+        "examples": "vehicle_key, vehicle_id, model, VIN",
+        "columns": [
+          {
+            "name": "vehicle_key",
+            "type": "INT",
+            "isPrimary": true
+          },
+          {
+            "name": "vehicle_id",
+            "type": "VARCHAR(255)"
+          },
+          {
+            "name": "created_at",
+            "type": "TIMESTAMP"
+          }
+        ]
+      },
+      {
+        "name": "DimEmployee",
+        "grain": "Employee",
+        "scd": "Type 1",
+        "examples": "employee_key, employee_id, department",
+        "columns": [
+          {
+            "name": "employee_key",
+            "type": "INT",
+            "isPrimary": true
+          },
+          {
+            "name": "employee_id",
+            "type": "VARCHAR(255)"
+          },
+          {
+            "name": "created_at",
+            "type": "TIMESTAMP"
+          }
+        ]
+      },
+      {
+        "name": "DimFranchisePartner",
+        "grain": "Partner",
+        "scd": "Type 1",
+        "examples": "partner_key, partner_id, status",
+        "columns": [
+          {
+            "name": "franchisepartner_key",
+            "type": "INT",
+            "isPrimary": true
+          },
+          {
+            "name": "franchisepartner_id",
+            "type": "VARCHAR(255)"
+          },
+          {
+            "name": "created_at",
+            "type": "TIMESTAMP"
+          }
+        ]
+      },
+      {
+        "name": "DimChargeCard",
+        "grain": "Card",
+        "scd": "Type 1",
+        "examples": "masked card details, customer relationship",
+        "columns": [
+          {
+            "name": "chargecard_key",
+            "type": "INT",
+            "isPrimary": true
+          },
+          {
+            "name": "chargecard_id",
+            "type": "VARCHAR(255)"
+          },
+          {
+            "name": "created_at",
+            "type": "TIMESTAMP"
+          }
+        ]
+      },
+      {
+        "name": "DimTariff",
+        "grain": "Tariff version",
+        "scd": "Type 2",
+        "examples": "rate, peak/offpeak, effective dates, current flag",
+        "columns": [
+          {
+            "name": "tariff_key",
+            "type": "INT",
+            "isPrimary": true
+          },
+          {
+            "name": "tariff_id",
+            "type": "VARCHAR(255)"
+          },
+          {
+            "name": "created_at",
+            "type": "TIMESTAMP"
+          }
+        ]
+      },
+      {
+        "name": "DimWeather",
+        "grain": "City + observation",
+        "scd": "Type 1",
+        "examples": "temperature, humidity, condition",
+        "columns": [
+          {
+            "name": "weather_key",
+            "type": "INT",
+            "isPrimary": true
+          },
+          {
+            "name": "weather_id",
+            "type": "VARCHAR(255)"
+          },
+          {
+            "name": "created_at",
+            "type": "TIMESTAMP"
+          }
+        ]
+      },
+      {
+        "name": "DimTime",
+        "grain": "Hour",
+        "scd": "—",
+        "examples": "date, year, month, hour, weekend, AU financial year",
+        "columns": [
+          {
+            "name": "time_key",
+            "type": "INT",
+            "isPrimary": true
+          },
+          {
+            "name": "time_id",
+            "type": "VARCHAR(255)"
+          },
+          {
+            "name": "created_at",
+            "type": "TIMESTAMP"
+          }
+        ]
+      }
+    ],
+    "facts": [
+      {
+        "name": "FactChargingSession",
+        "grain": "One row per session",
+        "columns": [
+          {
+            "name": "chargingsession_id",
+            "type": "BIGINT",
+            "isPrimary": true
+          },
+          {
+            "name": "charger_key",
+            "type": "INT",
+            "isForeign": true
+          },
+          {
+            "name": "time_key",
+            "type": "INT",
+            "isForeign": true
+          },
+          {
+            "name": "metric_value",
+            "type": "DECIMAL(10,2)"
+          }
+        ]
+      },
+      {
+        "name": "FactEnergyConsumption",
+        "grain": "Charger + hour",
+        "columns": [
+          {
+            "name": "energyconsumption_id",
+            "type": "BIGINT",
+            "isPrimary": true
+          },
+          {
+            "name": "charger_key",
+            "type": "INT",
+            "isForeign": true
+          },
+          {
+            "name": "time_key",
+            "type": "INT",
+            "isForeign": true
+          },
+          {
+            "name": "metric_value",
+            "type": "DECIMAL(10,2)"
+          }
+        ]
+      },
+      {
+        "name": "FactPayments",
+        "grain": "One row per payment",
+        "columns": [
+          {
+            "name": "payments_id",
+            "type": "BIGINT",
+            "isPrimary": true
+          },
+          {
+            "name": "charger_key",
+            "type": "INT",
+            "isForeign": true
+          },
+          {
+            "name": "time_key",
+            "type": "INT",
+            "isForeign": true
+          },
+          {
+            "name": "metric_value",
+            "type": "DECIMAL(10,2)"
+          }
+        ]
+      },
+      {
+        "name": "FactMaintenance",
+        "grain": "One row per event",
+        "columns": [
+          {
+            "name": "maintenance_id",
+            "type": "BIGINT",
+            "isPrimary": true
+          },
+          {
+            "name": "charger_key",
+            "type": "INT",
+            "isForeign": true
+          },
+          {
+            "name": "time_key",
+            "type": "INT",
+            "isForeign": true
+          },
+          {
+            "name": "metric_value",
+            "type": "DECIMAL(10,2)"
+          }
+        ]
+      },
+      {
+        "name": "FactFleetUtilisation",
+        "grain": "Vehicle + day",
+        "columns": [
+          {
+            "name": "fleetutilisation_id",
+            "type": "BIGINT",
+            "isPrimary": true
+          },
+          {
+            "name": "charger_key",
+            "type": "INT",
+            "isForeign": true
+          },
+          {
+            "name": "time_key",
+            "type": "INT",
+            "isForeign": true
+          },
+          {
+            "name": "metric_value",
+            "type": "DECIMAL(10,2)"
+          }
+        ]
+      },
+      {
+        "name": "FactDeviceTelemetry",
+        "grain": "Charger + event",
+        "columns": [
+          {
+            "name": "devicetelemetry_id",
+            "type": "BIGINT",
+            "isPrimary": true
+          },
+          {
+            "name": "charger_key",
+            "type": "INT",
+            "isForeign": true
+          },
+          {
+            "name": "time_key",
+            "type": "INT",
+            "isForeign": true
+          },
+          {
+            "name": "metric_value",
+            "type": "DECIMAL(10,2)"
+          }
+        ]
+      },
+      {
+        "name": "FactComplaints",
+        "grain": "One row per ticket",
+        "columns": [
+          {
+            "name": "complaints_id",
+            "type": "BIGINT",
+            "isPrimary": true
+          },
+          {
+            "name": "charger_key",
+            "type": "INT",
+            "isForeign": true
+          },
+          {
+            "name": "time_key",
+            "type": "INT",
+            "isForeign": true
+          },
+          {
+            "name": "metric_value",
+            "type": "DECIMAL(10,2)"
+          }
+        ]
+      },
+      {
+        "name": "FactStationUtilisation",
+        "grain": "Station + hour",
+        "columns": [
+          {
+            "name": "stationutilisation_id",
+            "type": "BIGINT",
+            "isPrimary": true
+          },
+          {
+            "name": "charger_key",
+            "type": "INT",
+            "isForeign": true
+          },
+          {
+            "name": "time_key",
+            "type": "INT",
+            "isForeign": true
+          },
+          {
+            "name": "metric_value",
+            "type": "DECIMAL(10,2)"
+          }
+        ]
+      },
+      {
+        "name": "FactInvoice",
+        "grain": "One row per invoice",
+        "columns": [
+          {
+            "name": "invoice_id",
+            "type": "BIGINT",
+            "isPrimary": true
+          },
+          {
+            "name": "charger_key",
+            "type": "INT",
+            "isForeign": true
+          },
+          {
+            "name": "time_key",
+            "type": "INT",
+            "isForeign": true
+          },
+          {
+            "name": "metric_value",
+            "type": "DECIMAL(10,2)"
+          }
+        ]
+      }
+    ]
+  },
+  "interviewTalkingPoints": [
+    "Medallion architecture, Azure Data Factory parameterisation, Auto Loader and Structured Streaming, checkpointing and watermarking, Delta Lake MERGE and SCD2, data quality/quarantine, Synapse serving, Cosmos DB for low latency, Key Vault + Managed Identity, RLS, Azure Monitor and Azure DevOps CI/CD."
+  ],
+  "sourceReferences": [
+    "VoltGrid_AU_Azure_Data_Engineering_Architecture.pdf"
+  ],
+  "sourceType": "PDF Document"
+}

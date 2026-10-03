@@ -1,0 +1,1055 @@
+[
+  {
+    "id": "fundamental-q1",
+    "title": "What does a data engineer actually do?",
+    "statement": "What does a data engineer actually do?",
+    "skill": "Foundations & Architecture",
+    "subSkills": [
+      "Foundations & Architecture"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "A data engineer builds and operates the systems that move data from where it is created to where it is consumed, and guarantees it is\ncorrect, timely and cheap to query. Analysts and scientists consume data; engineers produce the product they consume.\nIngestion — pull from APIs, databases, files, event streams.\nStorage — choose the right store and file layout for the access pattern.\nTransformation — clean, conform, model and aggregate into usable tables.\nServing — expose marts, feature tables and APIs to BI, ML and applications.\nReliability — orchestration, testing, monitoring, lineage, cost control.",
+    "interviewerAngle": "They want to hear ownership of the whole path, not just \"I write SQL\". Mention SLAs and on-call.",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q2",
+    "title": "Explain ETL vs ELT. Which would you choose today?",
+    "statement": "Explain ETL vs ELT. Which would you choose today?",
+    "skill": "Foundations & Architecture",
+    "subSkills": [
+      "Foundations & Architecture"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Both move data; they differ in where transformation happens. ETL transforms on a separate compute layer before loading. ELT loads raw\ndata into the warehouse first and transforms there with SQL.\nETL fits when the target is expensive or rigid, when data must be masked or filtered before it lands (PII, compliance), or when the\nsource volume dwarfs what you want to store.\nELT fits modern cloud warehouses where storage is cheap and compute elastic. Raw data is retained, so you can re-derive a model\nafter a logic change without re-extracting from the source.\nELT is the default today (Fivetran/Airbyte + Snowflake/BigQuery + dbt), but regulated pipelines still transform-then-load.",
+    "interviewerAngle": "The trap is saying one is strictly better. Answer with the trade-off, then state a preference and why.\n•\n•\n•\n•\n•\nAnatomy of a Modern Data Pipeline\nSources\napps, APIs, logs\nIngestion\nbatch / CDC / stream\nStorage\nlake / warehouse\nTransform\ndbt / Spark / SQL\nServing\nBI, ML, apps\nOrchestration • Data Quality • Lineage • Monitoring • Governance\n•\n•\n•\nETL vs ELT\nETL\nExtract\nTransform\n(staging server)\nLoadWarehouse\nTransform before load — schema fixed up front, heavier infra\nELT\nExtractLoad\nWarehouse\n(raw)\nTransform\n(SQL / dbt)\nTransform inside the warehouse — raw data kept, cheap elastic compute\n3",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q3",
+    "title": "What is the difference between OLTP and OLAP systems?",
+    "statement": "What is the difference between OLTP and OLAP systems?",
+    "skill": "Foundations & Architecture",
+    "subSkills": [
+      "Foundations & Architecture"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "OLTP systems handle the transactions that run a business; OLAP systems handle the analytics that measure it. The workloads are so\ndifferent that the storage layout itself differs.\nOLTP is row-oriented — a whole record sits together, so writing or fetching one order is one seek.\nOLAP is column-oriented — values of one column sit together, so scanning one column of a billion rows reads far less data and\ncompresses far better.\nRunning analytics directly on OLTP is the classic mistake: long scans lock rows and starve the application.",
+    "interviewerAngle": "Follow-up: \"why is columnar faster for analytics?\" Answer: less I/O plus better compression, not magic.",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q4",
+    "title": "Data lake, data warehouse, or lakehouse — what is the difference?",
+    "statement": "Data lake, data warehouse, or lakehouse — what is the difference?",
+    "skill": "Foundations & Architecture",
+    "subSkills": [
+      "Foundations & Architecture"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Data warehouse — structured, schema-on-write, curated and governed. Optimised for BI. Expensive per TB. Snowflake, BigQuery,\nRedshift, Synapse.\nData lake — any format, schema-on-read, very cheap object storage. Flexible, but with no structure it degrades into a data swamp.\nS3, ADLS, GCS.\nLakehouse — lake storage plus an open table format (Delta Lake, Apache Iceberg, Hudi) that adds ACID transactions, schema\nenforcement, time travel and upserts on top of files.\nThe medallion pattern is the usual way a lakehouse is organised: raw Bronze, cleaned Silver, business-ready Gold.",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q5",
+    "title": "How do you handle structured, semi-structured and unstructured data?",
+    "statement": "How do you handle structured, semi-structured and unstructured data?",
+    "skill": "Foundations & Architecture",
+    "subSkills": [
+      "Foundations & Architecture"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Structured — fixed schema, rows and columns. Store in a warehouse or Parquet. SQL is enough.\nSemi-structured — JSON, XML, Avro, logs. Self-describing but nested and evolving. Land it raw, then flatten into typed columns;\nmodern warehouses offer VARIANT / JSON types so you can query before you model.\nUnstructured — images, audio, PDFs, free text. Keep the blob in object storage and keep only metadata plus derived features\n(embeddings, OCR text) in the warehouse.",
+    "interviewerAngle": "Say explicitly: never force unstructured blobs into a relational column. Store a pointer, not the payload.\n•\n•\n•\nOLTP vs OLAP\nOLTP — Operational\n• Row-oriented storage\n• Many small reads / writes\n• Normalised (3NF)\n• ms latency, high concurrency\n• Postgres, MySQL, Oracle\nOLAP — Analytical\n• Column-oriented storage\n• Few huge scans / aggregates\n• Denormalised (star schema)\n• seconds latency, big batches\n• Snowflake, BigQuery, Redshift\nRule of thumb: OLTP runs the business, OLAP measures it.\n•\n•\n•\nLake → Lakehouse: the Medallion Architecture\nBronze\nraw, append-only\nexactly as ingested\nSilver\ncleaned, deduped,\nconformed, typed\nGold\naggregated business\nmarts for BI / ML\nEach hop adds quality guarantees; ACID table formats (Delta / Iceberg / Hudi) make it reliable\n•\n•\n•\n4",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q6",
+    "title": "What is a data mart, and when would you build one?",
+    "statement": "What is a data mart, and when would you build one?",
+    "skill": "Foundations & Architecture",
+    "subSkills": [
+      "Foundations & Architecture"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "A data mart is a subject-specific slice of the warehouse built for one team — finance, marketing, supply chain. It contains the facts and\ndimensions that team needs, modelled the way they think.\nWhy: faster queries on a smaller surface, simpler permissions, and semantics owned by the team.\nDependent mart — derived from the central warehouse. Preferred; one version of the truth.\nIndependent mart — built straight from sources. Fast to deliver, but breeds conflicting metrics.",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q7",
+    "title": "Batch or streaming — how do you decide?",
+    "statement": "Batch or streaming — how do you decide?",
+    "skill": "Foundations & Architecture",
+    "subSkills": [
+      "Foundations & Architecture"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Decide from the business latency requirement, not from what is fashionable. Streaming costs more to build, operate and debug, so it\nmust buy a decision that batch cannot.\nBatch — bounded data, scheduled runs, easy reprocessing. Daily finance reporting, ML training sets, reconciliation.\nStreaming — unbounded data, continuous processing, sub-minute latency. Fraud detection, real-time inventory, personalisation,\nalerting.\nMicro-batch (Spark Structured Streaming) is the pragmatic middle: seconds of latency with batch-like semantics.",
+    "interviewerAngle": "Strong answer: \"If nobody acts on the data within the hour, streaming is a cost with no return.\"\nSECTION 2\nSQL",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q8",
+    "title": "Explain every JOIN type and where each is used.",
+    "statement": "Explain every JOIN type and where each is used.",
+    "skill": "SQL",
+    "subSkills": [
+      "SQL"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "INNER — only rows matching in both tables.\nLEFT (OUTER) — all left rows; unmatched right columns are NULL. The workhorse for \"all customers, with their orders if any\".\nRIGHT — the mirror image; rare, since people flip the table order instead.\nFULL OUTER — everything from both sides. Used for reconciliation between two systems.\nCROSS — Cartesian product. Deliberate use: building a date × store spine.\nSELF — a table joined to itself, for hierarchies such as employee → manager.",
+    "interviewerAngle": "Classic follow-up: a LEFT JOIN with a filter on the right table in the WHERE clause silently becomes an INNER JOIN.\nPut that predicate in the ON clause instead.\n•\n•\n•\n•\n•\n•\nBatch vs Streaming\nBatch\nbatch 1\nrun\nbatch 2\nrun\nbatch 3\nrun\nBounded data, scheduled, high throughput\nStreaming\nwindowwindow\nUnbounded data, continuous, low latency\n•\n•\n•\n•\n•\n•\nSQL JOIN Types\nAB\nINNER JOIN\nAB\nLEFT JOIN\nAB\nRIGHT JOIN\nAB\nFULL OUTER JOIN\nCROSS JOIN = every row of A paired with every row of B (Cartesian product)\n5",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q9",
+    "title": "WHERE vs HAVING — what is the difference?",
+    "statement": "WHERE vs HAVING — what is the difference?",
+    "skill": "SQL",
+    "subSkills": [
+      "SQL"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "WHERE filters rows before grouping; HAVING filters groups after aggregation. So WHERE cannot reference an aggregate, and HAVING\nnormally does.\nPerformance note: push as much as possible into WHERE. Filtering before the aggregation means less data to group and shuffle.",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q10",
+    "title": "What are window functions? Explain RANK, DENSE_RANK and ROW_NUMBER.",
+    "statement": "What are window functions? Explain RANK, DENSE_RANK and ROW_NUMBER.",
+    "skill": "SQL",
+    "subSkills": [
+      "SQL"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "A window function computes across a set of rows related to the current row without collapsing them, unlike GROUP BY which returns\none row per group.\nROW_NUMBER() — unique sequential number; ties broken arbitrarily. 1, 2, 3, 4.\nRANK() — ties share a rank and the next rank is skipped. 1, 2, 2, 4.\nDENSE_RANK() — ties share a rank and nothing is skipped. 1, 2, 2, 3.",
+    "interviewerAngle": "Also know LAG, LEAD, SUM(...) OVER (ORDER BY ...) for running totals, and NTILE for bucketing.",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q11",
+    "title": "Find the second-highest salary in each department.",
+    "statement": "Find the second-highest salary in each department.",
+    "skill": "SQL",
+    "subSkills": [
+      "SQL"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Use DENSE_RANK so that two people on the same top salary do not consume two ranks — then the second distinct salary is what you\nget.",
+    "interviewerAngle": "Say out loud which definition you chose: second-highest distinct salary (DENSE_RANK) or second row\n(ROW_NUMBER). Clarifying the ambiguity is half the mark.",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q12",
+    "title": "How do you find and delete duplicate rows?",
+    "statement": "How do you find and delete duplicate rows?",
+    "skill": "SQL",
+    "subSkills": [
+      "SQL"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Define duplicates by a business key, number the copies, keep one. Deterministic tie-breaking matters — keep the most recent.\nTo only find them: GROUP BY email HAVING COUNT(*) > 1. In a warehouse with no cheap DELETE, the idiom is to rebuild the table\nwith QUALIFY rn = 1 instead.",
+    "interviewerAngle": "",
+    "solution": {
+      "language": "sql",
+      "code": "SELECT   region, SUM(amount) AS revenue\nFROM     sales\nWHERE    order_date >= '2024-01-01'   -- filters rows first\nGROUP BY region\nHAVING   SUM(amount) > 1000000;        -- filters groups after\n•\n•\n•\n"
+    },
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q13",
+    "title": "CTE vs subquery vs temporary table — when do you use each?",
+    "statement": "CTE vs subquery vs temporary table — when do you use each?",
+    "skill": "SQL",
+    "subSkills": [
+      "SQL"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Subquery — inline, used once, small. Fine for a scalar or an EXISTS check.\nCTE (WITH) — named, readable, can be referenced more than once and can recurse. The default for multi-step logic. Note that some\nengines materialise CTEs and some inline them — it is not automatically a performance win.\nTemp table — physically materialised for the session. Use it when an intermediate result is large and reused several times, or when\nyou want to index it.",
+    "interviewerAngle": "Mention recursive CTEs for hierarchies — org charts, bill-of-materials, graph traversal.",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q14",
+    "title": "A query is slow. Walk me through how you fix it.",
+    "statement": "A query is slow. Walk me through how you fix it.",
+    "skill": "SQL",
+    "subSkills": [
+      "SQL"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Read the plan first. EXPLAIN / EXPLAIN ANALYZE. Never guess. Look for full scans, nested loops on big tables, and spills to disk.\nReduce data read. Select only needed columns, filter early, and use partition pruning — a predicate on the partition column is worth\nmore than any index.\nFix the indexes. Index the join and filter keys; a composite index must match column order. Avoid functions on indexed columns,\nwhich defeat the index.\nFix the join. Join on keys of the same data type, filter before joining, and broadcast the small side.\nFix skew and statistics. Stale statistics produce terrible plans; skewed keys produce one endless task.\nConsider structure. Pre-aggregate into a summary table or materialised view if the same heavy query runs constantly.",
+    "interviewerAngle": "The method is the answer. Candidates who jump straight to \"add an index\" lose marks.",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q15",
+    "title": "UNION vs UNION ALL?",
+    "statement": "UNION vs UNION ALL?",
+    "skill": "SQL",
+    "subSkills": [
+      "SQL"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "UNION removes duplicates, UNION ALL does not. Deduplication requires a sort or hash across the whole result, so UNION is materially\nmore expensive.\nUse UNION ALL by default when you know the sets are disjoint — for example stacking monthly partitions.\nUse UNION only when duplicates are genuinely possible and unwanted.\nBoth require the same column count and compatible types across branches.",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q16",
+    "title": "What NULL-handling mistakes do you watch out for?",
+    "statement": "What NULL-handling mistakes do you watch out for?",
+    "skill": "SQL",
+    "subSkills": [
+      "SQL"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "NULL = NULL is not true, it is unknown. Use IS NULL / IS DISTINCT FROM.\nNOT IN with a NULL in the subquery returns no rows at all. Use NOT EXISTS or filter the NULLs out.\nCOUNT(*) counts rows; COUNT(col) skips NULLs. This silently changes denominators in metrics.\nAggregates ignore NULLs, so AVG(col) is the average of non-null values, not of all rows.\nConcatenation and arithmetic with NULL yield NULL — wrap with COALESCE.",
+    "interviewerAngle": "The NOT IN trap is one of the most common interview questions in the whole SQL round.\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n7\nSECTION 3\nData Modelling & Warehousing",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q17",
+    "title": "Explain normalisation and the normal forms.",
+    "statement": "Explain normalisation and the normal forms.",
+    "skill": "Data Modelling & Warehousing",
+    "subSkills": [
+      "Data Modelling & Warehousing"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Normalisation organises tables to remove redundancy and update anomalies, by making every non-key attribute depend on the key, the\nwhole key, and nothing but the key.\n1NF — atomic values, no repeating groups or arrays in a column.\n2NF — 1NF plus no partial dependency on part of a composite key.\n3NF — 2NF plus no transitive dependency between non-key attributes.\nBCNF — a stricter 3NF where every determinant is a candidate key.\nNormalise OLTP so writes stay cheap and consistent. Denormalise analytics so reads stay fast.",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q18",
+    "title": "When would you deliberately denormalise?",
+    "statement": "When would you deliberately denormalise?",
+    "skill": "Data Modelling & Warehousing",
+    "subSkills": [
+      "Data Modelling & Warehousing"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Read-heavy analytical tables where join cost dominates — wide fact tables, reporting marts.\nDimension tables in a star schema, which are denormalised on purpose so BI tools need one join.\nServing layers with strict latency budgets, such as a feature store or a dashboard cache.\nNoSQL stores where you model around the query, not around the entity.\nThe price you pay is redundancy: the same attribute exists in many places, so writes get more expensive and correctness now depends\non your pipeline rather than on a constraint.",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q19",
+    "title": "What is a star schema and why is it the default for analytics?",
+    "statement": "What is a star schema and why is it the default for analytics?",
+    "skill": "Data Modelling & Warehousing",
+    "subSkills": [
+      "Data Modelling & Warehousing"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "A central fact table holding measures and foreign keys, surrounded by denormalised dimension tables holding descriptive attributes.\nFew joins, so queries are fast and plans are predictable.\nIntuitive for business users and native to every BI tool.\nDimensions are small enough to broadcast, which removes shuffle in distributed engines.",
+    "interviewerAngle": "Be ready to model one on the spot: \"design a schema for an e-commerce company\" is extremely common.\n•\n•\n•\n•\nNormalisation vs Denormalisation\nNormalised (3NF)\norderscustomers\norder_itemsproducts\nNo redundancy, cheap writes, many joins\nDenormalised (reporting)\nwide_order_facts\norder + customer + product\nattributes in one table\nRedundant data, costly writes, fast reads\n•\n•\n•\n•\n•\n•\n•\nStar Schema\nfact_sales\norder_id, date_key,\ncustomer_key, amount\ndim_datedim_product\ndim_customerdim_store\nOne central fact table (measures) joined to denormalised dimension tables\n8",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q20",
+    "title": "How does a snowflake schema differ, and when is it worth it?",
+    "statement": "How does a snowflake schema differ, and when is it worth it?",
+    "skill": "Data Modelling & Warehousing",
+    "subSkills": [
+      "Data Modelling & Warehousing"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "A snowflake schema normalises the dimensions into sub-dimensions, so a product dimension splits into product, brand and category\ntables.\nPros — less storage, and a shared attribute is maintained in exactly one place.\nCons — more joins per query, harder for analysts to navigate, slower in most BI tools.\nUse when a dimension is genuinely huge, or a hierarchy is reused across many dimensions and must stay consistent.\nOn cloud warehouses storage is cheap, so the storage argument rarely wins. Star is the default; snowflake is the exception you justify.",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q21",
+    "title": "Fact tables and dimension tables — and what types of fact table exist?",
+    "statement": "Fact tables and dimension tables — and what types of fact table exist?",
+    "skill": "Data Modelling & Warehousing",
+    "subSkills": [
+      "Data Modelling & Warehousing"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Dimension — the context. Who, what, where, when. Textual, descriptive, relatively small, changes slowly.\nFact — the events. Numeric measures plus foreign keys to dimensions. Large and append-heavy.\nTransaction fact — one row per event. Most common; fully additive.\nPeriodic snapshot — state at regular intervals, e.g. daily account balance. Semi-additive: you can sum across accounts but not across\ndays.\nAccumulating snapshot — one row per process instance, updated as milestones complete (order placed → picked → shipped →\ndelivered).\nFactless fact — records that an event happened with no measure, e.g. student attendance.",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q22",
+    "title": "Surrogate key vs natural key — which do you use in a warehouse?",
+    "statement": "Surrogate key vs natural key — which do you use in a warehouse?",
+    "skill": "Data Modelling & Warehousing",
+    "subSkills": [
+      "Data Modelling & Warehousing"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "A natural key comes from the business (email, ISBN, order number). A surrogate key is a meaningless system-generated integer or hash\nowned by the warehouse.\nSurrogate keys stay stable when the source system changes its identifiers or when you merge two sources.\nThey are narrow integers, so joins and indexes are cheaper than on a wide composite natural key.\nThey are required for SCD Type 2: the natural key repeats across versions, so only a surrogate can uniquely address one version of a\nrow.\nAlways keep the natural key as an attribute for traceability back to the source.",
+    "interviewerAngle": "\"Why can't the customer ID be the primary key?\" — because with Type 2 history it is no longer unique.\n•\n•\n•\nSnowflake Schema — dimensions normalised further\nfact_sales\ndim_productdim_store\ndim_categorydim_branddim_region\nFewer redundant values, more joins — saves storage, costs query performance\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n9",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q23",
+    "title": "Explain Slowly Changing Dimensions and their types.",
+    "statement": "Explain Slowly Changing Dimensions and their types.",
+    "skill": "Data Modelling & Warehousing",
+    "subSkills": [
+      "Data Modelling & Warehousing"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "An SCD strategy defines what happens to history when a dimension attribute changes — a customer moves city, a product changes\ncategory.\nType 0 — never changes. Date of birth, original signup channel.\nType 1 — overwrite. Simple, but history is lost forever.\nType 2 — add a new row with valid_from, valid_to and is_current flags. The standard for analytics that must reproduce the past.\nType 3 — add a previous_value column. Only keeps one prior state.\nType 4 / 6 — separate history table, or a hybrid combining 1, 2 and 3.",
+    "interviewerAngle": "Follow-up: \"Why does Type 2 matter?\" Because a report re-run for last quarter must show last quarter's attributes,\nnot today's.",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q24",
+    "title": "What is the grain of a fact table, and why is it the first thing you decide?",
+    "statement": "What is the grain of a fact table, and why is it the first thing you decide?",
+    "skill": "Data Modelling & Warehousing",
+    "subSkills": [
+      "Data Modelling & Warehousing"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "The grain is the precise meaning of one row: \"one row per line item per order\" or \"one row per account per day\". It is declared before\nyou choose any dimension or measure.\nMixing grains in one table is the root cause of double counting — sum a header-level shipping cost across line items and every\nnumber is wrong.\nA finer grain is always safer: you can aggregate up, but you can never recover detail you never stored.\nEvery dimension you attach must be valid at that grain.",
+    "interviewerAngle": "Kimball's four steps: choose the process, declare the grain, choose the dimensions, choose the facts. Saying this\nverbatim reads as senior.",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q25",
+    "title": "Inmon vs Kimball vs Data Vault — what is the difference?",
+    "statement": "Inmon vs Kimball vs Data Vault — what is the difference?",
+    "skill": "Data Modelling & Warehousing",
+    "subSkills": [
+      "Data Modelling & Warehousing"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Inmon (top-down) — build a normalised enterprise warehouse first, then derive marts. Consistent and durable, but slow to deliver\nvalue.\nKimball (bottom-up) — build dimensional marts per business process, tied together by conformed dimensions. Fast to value, and\nwhat most teams actually do.\nData Vault — hubs (business keys), links (relationships) and satellites (attributes with history). Built for auditability, many sources and\nconstant schema change; it is a raw layer, not a reporting layer.\nA common modern stack uses Data Vault or a raw Bronze layer for ingestion and Kimball star schemas for the Gold serving layer.\n•\n•\n•\n•\n•\nSlowly Changing Dimension — Type 2\ncust_keyidcityvalid_fromvalid_tois_current\n100142Pune2023-01-012024-06-30false100242Berlin2024-07-019999-12-31true\nThe customer moved city: the old row is closed off, a new row is inserted.\nHistory is preserved — Type 1 would have overwritten 'Pune' and lost it.\n•\n•\n•\n•\n•\n•\n10\nSECTION 4\nPipelines, ETL & Orchestration",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q26",
+    "title": "What is idempotency and why does every pipeline need it?",
+    "statement": "What is idempotency and why does every pipeline need it?",
+    "skill": "Pipelines, ETL & Orchestration",
+    "subSkills": [
+      "Pipelines, ETL & Orchestration"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "A pipeline is idempotent when running it twice for the same input produces the same result as running it once. Because retries, backfills\nand manual reruns are certain, non-idempotent pipelines corrupt data the first time anything fails halfway.\nReplace a partition instead of appending to it — INSERT OVERWRITE for a given dt, not a blind INSERT.\nUse MERGE / upsert on a deterministic business key rather than plain inserts.\nMake every task parameterised by the logical run date, never by now().\nDeduplicate on an event ID at the consumer if the source guarantees only at-least-once delivery.",
+    "interviewerAngle": "A great one-liner: \"I design for replay, because at some point every pipeline gets replayed.\"",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q27",
+    "title": "Full load vs incremental load — how do you choose?",
+    "statement": "Full load vs incremental load — how do you choose?",
+    "skill": "Pipelines, ETL & Orchestration",
+    "subSkills": [
+      "Pipelines, ETL & Orchestration"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Full load — truncate and reload everything. Simple, self-healing, and correct by construction. Fine for small dimensions; unusable for\nbillion-row facts.\nIncremental — move only what changed, keyed on an updated_at watermark, an auto-increment ID, or a CDC log. Cheap and fast,\nbut it must handle late arrivals, deletes and backfills.\nThe pragmatic pattern is incremental daily with a periodic full reconciliation — for example a weekly full refresh, or a rolling re-load of\nthe last 7 days to absorb late-arriving corrections.",
+    "interviewerAngle": "Mention that a watermark on updated_at cannot see hard deletes. That distinction sets up the CDC question.",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q28",
+    "title": "What is Change Data Capture and why is it better than polling?",
+    "statement": "What is Change Data Capture and why is it better than polling?",
+    "skill": "Pipelines, ETL & Orchestration",
+    "subSkills": [
+      "Pipelines, ETL & Orchestration"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "CDC captures row-level changes from the database's own transaction log — the WAL in Postgres, the binlog in MySQL — and streams\nthem as INSERT, UPDATE and DELETE events.\nNo load on the source: the log is read, the tables are not queried.\nDeletes are captured, which watermark polling simply cannot do.\nNear real-time and ordered, so downstream state can be rebuilt exactly.\nNo dependency on the source having a reliable updated_at column.\nTooling: Debezium into Kafka is the canonical open-source path; most managed connectors do the same thing.\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q29",
+    "title": "How do you design and run a backfill?",
+    "statement": "How do you design and run a backfill?",
+    "skill": "Pipelines, ETL & Orchestration",
+    "subSkills": [
+      "Pipelines, ETL & Orchestration"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Make the job date-parameterised so any historical partition can be recomputed in isolation.\nRun it in chunks — day by day or month by month — so a failure costs one chunk, not the whole job.\nThrottle it onto a separate queue or cluster so it does not starve the production schedule.\nWrite to a shadow table, validate row counts and key metrics against the old table, then swap atomically.\nDocument the reason and the range; announce the numbers will move before dashboards change.",
+    "interviewerAngle": "Interviewers listen for whether you protect production while backfilling. Most candidates forget that.",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q30",
+    "title": "What does an orchestrator do, and what makes a good DAG?",
+    "statement": "What does an orchestrator do, and what makes a good DAG?",
+    "skill": "Pipelines, ETL & Orchestration",
+    "subSkills": [
+      "Pipelines, ETL & Orchestration"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "An orchestrator schedules tasks, enforces dependencies, retries failures and gives you visibility. Airflow, Dagster and Prefect are the\ncommon choices.\nTasks should be small, atomic and idempotent, so a retry is always safe.\nDependencies are edges, not data — pass pointers and paths between tasks, not big payloads.\nConfigure retries with exponential backoff, timeouts and SLAs on the critical path.\nKeep the DAG definition free of heavy work: the scheduler parses that file constantly.\nUse sensors or data-aware triggers instead of guessing an upstream's finish time with a fixed delay.",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q31",
+    "title": "How do you handle late-arriving data?",
+    "statement": "How do you handle late-arriving data?",
+    "skill": "Pipelines, ETL & Orchestration",
+    "subSkills": [
+      "Pipelines, ETL & Orchestration"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Late data is the norm: mobile clients buffer offline, third parties correct yesterday's file, a source system re-sends. Design for it rather\nthan treating it as an incident.\nPartition by event time, not by ingestion time, so a late row lands in the day it belongs to.\nRe-process a rolling lookback window — reprocess the last N days every run instead of only today.\nIn streaming, use watermarks with an allowed lateness; anything later goes to a side output rather than being dropped silently.\nFor dimensions, handle the late-arriving dimension case with an inferred placeholder row so the fact is not orphaned, then update it\nwhen the real record turns up.\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q32",
+    "title": "What data quality checks would you put in a pipeline?",
+    "statement": "What data quality checks would you put in a pipeline?",
+    "skill": "Pipelines, ETL & Orchestration",
+    "subSkills": [
+      "Pipelines, ETL & Orchestration"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Freshness — max(event_time) is within the expected SLA.\nVolume — row count is within an expected band versus the trailing average; a 70% drop is an incident, not a quiet success.\nSchema — expected columns and types are present; reject or quarantine on drift.\nUniqueness and nullability — primary keys unique, critical fields not null.\nReferential integrity — every fact foreign key resolves to a dimension row.\nBusiness rules — amounts non-negative, statuses in an allowed set, totals reconcile to source.\nTooling: dbt tests, Great Expectations, Soda. Separate warn from    block — a failing critical test should stop the pipeline, not just log.",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q33",
+    "title": "How do you handle schema drift from an upstream source?",
+    "statement": "How do you handle schema drift from an upstream source?",
+    "skill": "Pipelines, ETL & Orchestration",
+    "subSkills": [
+      "Pipelines, ETL & Orchestration"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Contract first — agree a schema and version it; use a schema registry with Avro or Protobuf for streams.\nLand raw — keep the original payload so a new field can be recovered retroactively.\nClassify the change — additive fields are backward compatible and can be absorbed automatically; renames, type narrowing and\ndropped fields are breaking and must fail loudly.\nQuarantine — route non-conforming records to a dead-letter table with the reason, instead of failing the whole batch or silently\ndropping rows.\nAlert the owner — drift is an upstream problem; detection must reach the producer.",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q34",
+    "title": "A production pipeline fails at 3 a.m. Walk me through what you do.",
+    "statement": "A production pipeline fails at 3 a.m. Walk me through what you do.",
+    "skill": "Pipelines, ETL & Orchestration",
+    "subSkills": [
+      "Pipelines, ETL & Orchestration"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Contain — check whether partial output landed. Stop downstream consumers from reading a half-written table.\nDiagnose — read the task log, not the DAG view. Classify: transient (network, quota), data (bad record, schema change) or logic (a\ndeploy).\nAct — transient issues clear on retry; data issues get quarantined and reprocessed; logic issues get rolled back.\nRecover — rerun the idempotent task for the affected partition and verify counts.\nCommunicate — tell consumers the data is late and when it will be correct.\nPrevent — add the test or the alert that would have caught it, and write the postmortem.",
+    "interviewerAngle": "This is a behavioural question disguised as technical. Structure and communication score as high as the fix.\n•\n•\n•\n•\n•\n•\nThe Six Dimensions of Data Quality\nCompleteness\nno missing values\nAccuracy\nmatches reality\nConsistency\nagrees across systems\nTimeliness\nfresh enough to use\nValidity\nconforms to rules\nUniqueness\nno duplicate entities\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n13\nSECTION 5\nBig Data & Spark",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q35",
+    "title": "Explain Spark's architecture.",
+    "statement": "Explain Spark's architecture.",
+    "skill": "Big Data & Spark",
+    "subSkills": [
+      "Big Data & Spark"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Driver — runs your code, builds the logical plan and the DAG, splits it into stages and tasks, and schedules them. It holds the\nSparkContext.\nCluster manager — YARN, Kubernetes, Mesos or Standalone. Allocates resources.\nExecutors — JVM processes on worker nodes that run tasks and hold cached partitions in memory.\nTask — the unit of work: one task per partition per stage.\nStages are separated by shuffle boundaries. The number of tasks in a stage equals the number of partitions, which is why partition\ncount drives parallelism.",
+    "interviewerAngle": "Follow-up: \"why did my job OOM on the driver?\" Usually collect() on a large DataFrame, or a broadcast of\nsomething far too big.",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q36",
+    "title": "RDD vs DataFrame vs Dataset?",
+    "statement": "RDD vs DataFrame vs Dataset?",
+    "skill": "Big Data & Spark",
+    "subSkills": [
+      "Big Data & Spark"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "RDD — the low-level distributed collection. Full control, no schema, and no Catalyst optimisation. Use only for unusual, unstructured\nwork.\nDataFrame — a distributed table with a schema. Goes through the Catalyst optimiser and Tungsten execution engine, so it is much\nfaster and the default choice.\nDataset — DataFrame plus compile-time type safety, available in Scala and Java only; in Python a DataFrame is a Dataset of Row.\nPractical rule: use DataFrames and the SQL API. Dropping to RDDs usually means losing the optimiser for no gain.",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q37",
+    "title": "Transformations vs actions, and what is lazy evaluation?",
+    "statement": "Transformations vs actions, and what is lazy evaluation?",
+    "skill": "Big Data & Spark",
+    "subSkills": [
+      "Big Data & Spark"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Transformations (select, filter, join, groupBy) build a plan and execute nothing. Actions (count, collect, show, write)\ntrigger execution of that plan.\nLaziness lets Catalyst see the whole chain and optimise it — predicate pushdown, column pruning, reordering joins, collapsing\noperations.\nIt also means the job only runs at the action, so a typo in a filter surfaces far later than you expect.\nCalling several actions on the same uncached DataFrame recomputes the whole lineage each time — this is exactly when you cache.\n•\n•\n•\n•",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q38",
+    "title": "Narrow vs wide transformations — and what is a shuffle?",
+    "statement": "Narrow vs wide transformations — and what is a shuffle?",
+    "skill": "Big Data & Spark",
+    "subSkills": [
+      "Big Data & Spark"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Narrow — each output partition depends on one input partition (map, filter, union). No data crosses the network; Spark\npipelines them together.\nWide — output partitions depend on many input partitions (groupByKey, join, distinct, repartition). Requires a shuffle.\nA shuffle writes intermediate data to disk, transfers it across the network and re-reads it. It is the most expensive thing in Spark and it\ndefines the stage boundary.\nReduce shuffles: broadcast the small side of a join, pre-bucket on the join key, filter before joining, and prefer reduceByKey over\ngroupByKey because it combines map-side first.",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q39",
+    "title": "What is data skew, how do you detect it and how do you fix it?",
+    "statement": "What is data skew, how do you detect it and how do you fix it?",
+    "skill": "Big Data & Spark",
+    "subSkills": [
+      "Big Data & Spark"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Skew is an uneven distribution of keys, so one partition holds far more data than the others. One task runs for hours while the rest finish\nin seconds, and it often ends in an OOM.\nDetect — in the Spark UI, compare max task duration and shuffle read size against the median for the stage. Or count rows per key\ndirectly.\nSalting — append a random suffix to the hot key, aggregate, then strip the salt and aggregate again.\nBroadcast join — if one side is small, remove the shuffle entirely.\nAdaptive Query Execution (Spark 3+) — spark.sql.adaptive.skewJoin.enabled splits skewed partitions automatically.\nIsolate — process the few hot keys separately and union the results.\nFilter — a huge share of NULL join keys is a very common cause; exclude them first.",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q40",
+    "title": "Partitioning vs bucketing — what is the difference?",
+    "statement": "Partitioning vs bucketing — what is the difference?",
+    "skill": "Big Data & Spark",
+    "subSkills": [
+      "Big Data & Spark"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Partitioning splits data into directories by column value, e.g. /dt=2024-07-02/. A query filtering on that column skips whole\nfolders — partition pruning.\nBucketing hashes a column into a fixed number of files inside each partition. Two tables bucketed the same way on the join key can\nbe joined without a shuffle.\nPartition on low-cardinality columns you filter by — date, region, tenant. Partitioning on a high-cardinality column such as user_id\ncreates millions of tiny folders and destroys performance.",
+    "interviewerAngle": "\"How many partitions?\" Aim for files around 128 MB to 1 GB. That single number impresses.\n•\n•\n•\nNarrow vs Wide Transformations\nNarrow — map, filter, union\nP1P1'\nP2P2'\nP3P3'\n1:1 partition lineage — no network I/O\nWide — groupBy, join, distinct\nP1P1'\nP2P2'\nP3P3'\nShuffle: data crosses the network = stage boundary\n•\n•\n•\n•\n•\n•\n•\n•\nPartitioning vs Bucketing\nPartitioning (directory pruning)\n/sales/dt=2024-07-01/\n/sales/dt=2024-07-02/\n/sales/dt=2024-07-03/\nWHERE dt = '2024-07-02' reads one folder\nBucketing (hash into N files)\nbucket\n0\nbucket\n1\nbucket\n2\nbucket\n3\nhash(user_id) % 4\nFixed file count — kills shuffle on joins\n15",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q41",
+    "title": "Parquet, ORC, Avro or CSV — which and why?",
+    "statement": "Parquet, ORC, Avro or CSV — which and why?",
+    "skill": "Big Data & Spark",
+    "subSkills": [
+      "Big Data & Spark"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Parquet — columnar, compressed, with per-column statistics and predicate pushdown. The default for analytics.\nORC — columnar as well, with stronger built-in indexes; the Hive-ecosystem counterpart.\nAvro — row-based, compact binary, excellent schema evolution support. The default for streaming and write-heavy ingestion.\nJSON / CSV — human readable, no schema enforcement, no compression by default, slow to parse. Use for interchange, never as a\nstorage layer.\nRule: row formats for writing and moving records, columnar formats for reading and analysing them.",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q42",
+    "title": "What is the small files problem?",
+    "statement": "What is the small files problem?",
+    "skill": "Big Data & Spark",
+    "subSkills": [
+      "Big Data & Spark"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Thousands of tiny files each cost a metadata lookup, a task launch and a file open, so the scheduler and the namenode or object store\nspend more effort than the actual compute. Streaming jobs writing every micro-batch are the usual cause.\nCompact on a schedule — OPTIMIZE in Delta, or a periodic rewrite job.\nUse coalesce (no shuffle) or repartition (with shuffle) before writing to control the output file count.\nTune trigger intervals so a streaming sink flushes less often.\nTarget roughly 128 MB–1 GB per file.",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q43",
+    "title": "cache vs persist, and when do you use a broadcast join?",
+    "statement": "cache vs persist, and when do you use a broadcast join?",
+    "skill": "Big Data & Spark",
+    "subSkills": [
+      "Big Data & Spark"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "cache() is persist(MEMORY_AND_DISK) — the default storage level. persist() lets you choose the level, including memory-\nonly, disk-only and serialised variants.\nCache only when a DataFrame is reused by several actions and is expensive to recompute. Caching everything evicts what actually\nmatters.\nAlways unpersist() when done.\nA broadcast join ships the small table to every executor so the large table never moves. Spark does it automatically below\nspark.sql.autoBroadcastJoinThreshold (10 MB by default), or you can force it with broadcast(df). Broadcasting something too\nlarge will OOM the executors.",
+    "interviewerAngle": "Know the join strategies by name: broadcast hash, shuffle hash, sort-merge, broadcast nested loop.\n•\n•\n•\n•\nRow vs Columnar Storage\nRow (CSV, Avro, JSON)\nWhole row read together → good for writes / streaming\nColumnar (Parquet, ORC)\nColumn read + compressed → good for analytics scans\n•\n•\n•\n•\n•\n•\n•\n16\nSECTION 6\nStreaming & Messaging",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q44",
+    "title": "Explain Kafka: topics, partitions, offsets and consumer groups.",
+    "statement": "Explain Kafka: topics, partitions, offsets and consumer groups.",
+    "skill": "Streaming & Messaging",
+    "subSkills": [
+      "Streaming & Messaging"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "A topic is a named, append-only log, split into partitions spread across brokers.\nEach message in a partition has a monotonically increasing offset. Consumers commit the offset they have processed, so they can\nresume after a restart.\nOrdering is guaranteed within a partition only, never across a topic. If you need per-customer order, use the customer ID as the\nmessage key so it always hashes to the same partition.\nA consumer group shares the work: each partition is assigned to exactly one consumer in the group. More consumers than partitions\nmeans idle consumers.\nReplication factor gives durability; retention means a consumer can replay history rather than lose it.",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q45",
+    "title": "How is Kafka different from a traditional message queue?",
+    "statement": "How is Kafka different from a traditional message queue?",
+    "skill": "Streaming & Messaging",
+    "subSkills": [
+      "Streaming & Messaging"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Kafka is a distributed log with retention: reading does not delete. A rabbit-style queue removes the message on acknowledgement.\nBecause messages persist, many independent consumer groups can read the same topic for different purposes, and any of them can\nreplay from an old offset.\nKafka scales horizontally through partitions and is built for very high throughput; classic brokers are optimised for routing flexibility\nand per-message delivery guarantees.\nKafka gives ordering per partition; a queue with competing consumers gives no ordering at all.",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q46",
+    "title": "Explain at-most-once, at-least-once and exactly-once.",
+    "statement": "Explain at-most-once, at-least-once and exactly-once.",
+    "skill": "Streaming & Messaging",
+    "subSkills": [
+      "Streaming & Messaging"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "At most once — commit the offset before processing. Fast, and data can be lost on a crash.\nAt least once — process, then commit. Nothing is lost, but a crash between the two causes reprocessing and duplicates. This is the\nusual default.\nExactly once — each event affects the result once. Achieved with transactional writes, or with at-least-once delivery plus an\nidempotent sink.\nIn practice most teams build at-least-once plus idempotency: a deterministic key with MERGE, or deduplication on an event ID within a\nwindow. That is cheaper and more robust than chasing true end-to-end exactly-once across system boundaries.",
+    "interviewerAngle": "Saying \"exactly once is a property of the whole pipeline, not of the broker\" is a strong signal.\n•\n•\n•\n•\n•\nKafka — Topics, Partitions & Consumer Groups\nProducer\ntopic: orders\nP0\nP1\nP2\nconsumer group: billing\nConsumer 1 ← P0\nConsumer 2 ← P1\nConsumer 3 ← P2\nOrder is guaranteed per partition, never across the topic. One partition → one consumer per group.\n•\n•\n•\n•\n•\n•\n•\nDelivery Semantics\nAt most once\nfire and forget\nmay LOSE data\nAt least once\nretry until ack\nmay DUPLICATE\nExactly once\ndedupe keys + idempotent\nwrites / transactions\nIn practice: at-least-once delivery + idempotent consumers = effectively exactly once.\n17",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q47",
+    "title": "Event time vs processing time — what is a watermark?",
+    "statement": "Event time vs processing time — what is a watermark?",
+    "skill": "Streaming & Messaging",
+    "subSkills": [
+      "Streaming & Messaging"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Event time is when the event actually happened; processing time is when your system saw it. Networks, retries and offline devices\nmean the gap can be hours.\nAggregate on event time, or your daily numbers shift whenever the pipeline is slow.\nA watermark is the engine's assertion that no event older than time T is still expected. It lets the engine close a window, emit the\nresult and release state.\nAllowed lateness defines how long past the watermark a window stays open for corrections; anything later goes to a side output.\nWithout watermarks, a streaming aggregation keeps unbounded state and eventually dies.\nWindow types worth naming: tumbling (fixed, non-overlapping), sliding (overlapping), session (gap-based, per key).\nSECTION 7\nDistributed Systems & Design",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q48",
+    "title": "Explain the CAP theorem.",
+    "statement": "Explain the CAP theorem.",
+    "skill": "Distributed Systems & Design",
+    "subSkills": [
+      "Distributed Systems & Design"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "In a distributed system you can guarantee at most two of Consistency, Availability and Partition tolerance. Since network partitions do\nhappen, P is mandatory — so the real choice is C or A during a partition.\nCP — refuse writes rather than serve stale data. HBase, ZooKeeper, MongoDB with majority concerns. Choose it for balances and\ninventory.\nAP — keep serving and reconcile later. Cassandra, DynamoDB. Choose it for feeds, carts, telemetry.\nCA is only meaningful on a single node.",
+    "interviewerAngle": "Add PACELC for seniority: even without a partition, there is a latency-versus-consistency trade-off.",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q49",
+    "title": "Sharding vs replication, and horizontal vs vertical scaling?",
+    "statement": "Sharding vs replication, and horizontal vs vertical scaling?",
+    "skill": "Distributed Systems & Design",
+    "subSkills": [
+      "Distributed Systems & Design"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Sharding (partitioning) splits one dataset across nodes so each holds a subset. It scales writes and storage. The hard parts are\nchoosing a shard key that avoids hotspots, and cross-shard joins.\nReplication copies the same data to several nodes. It scales reads and gives fault tolerance, but introduces replica lag and stale\nreads.\nReal systems use both: sharded for volume, replicated for availability.\nVertical scaling — a bigger machine. Simple, but has a ceiling and a single point of failure.\nHorizontal scaling — more machines. Effectively unlimited, at the cost of coordination, consistency and operational complexity.\n•\n•\n•\n•\n•\n•\n•\n•",
+    "interviewerAngle": "",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  },
+  {
+    "id": "fundamental-q50",
+    "title": "Design a data pipeline for a ride-hailing app from scratch.",
+    "statement": "Design a data pipeline for a ride-hailing app from scratch.",
+    "skill": "Distributed Systems & Design",
+    "subSkills": [
+      "Distributed Systems & Design"
+    ],
+    "type": "concept",
+    "difficulty": "Intermediate",
+    "detailedExplanation": "Answer with a framework, not a tool list. Take thirty seconds to state the requirements before drawing anything.\n1. Clarify — who consumes it, what latency, what volume, what retention, what compliance? Real-time driver matching needs\nseconds; finance reporting needs a day.\n2. Estimate — events per second, average payload, daily and yearly volume. Numbers justify every later choice.\n3. Ingest — GPS pings and trip events to Kafka; operational tables via CDC; partner data by batch file.\n4. Store — raw events in object storage as Parquet, partitioned by event date; Delta or Iceberg for ACID and upserts.\n5. Process — streaming job for live supply-demand and ETA; batch job for the daily star schema with fact_trip and dimensions for\ndriver, rider, city and time.\n6. Serve — warehouse marts for BI, a low-latency store for the matching service, a feature store for ML.\n7. Operate — orchestration, data quality tests, lineage, alerting on freshness and volume, PII masking and retention policy, and cost\ncontrol through partition pruning and file sizing.",
+    "interviewerAngle": "Interviewers grade the structure and the trade-offs you name out loud — not whether you picked their favourite\ntool.\n•\n•\n•\n•\n•\n•\n•\n19\nThe last 10% that gets offers\nTechnical accuracy gets you through the screen. These are the things that separate the two candidates who both\nanswered correctly.\nStructure every answer\nOne-sentence direct answer first.\nThen the mechanism or the trade-off.\nThen a concrete example from your work.\nStop. Let them ask the follow-up.\nNumbers make you credible\n\"Roughly 2 TB a day, 40k events/sec at peak.\"\n\"Target 128 MB–1 GB Parquet files.\"\n\"Cut the daily run from 4 hours to 35 minutes.\"\nVague scale claims read as second-hand knowledge.\nSay \"I don't know\" well\nAdmit the gap in one sentence.\nReason from a related principle you do know.\nSay how you would find out.\nBluffing is the fastest way to fail a round.\nHave these three stories ready\nA pipeline you made faster or cheaper — with before/after\nnumbers.\nA production incident you diagnosed and fixed.\nA design decision you would now make differently, and why.\nQuestions worth asking them\nHow is data quality caught today — tests, or Slack\nmessages?\nWho owns the pipeline when it breaks at 3 a.m.?\nWhat share of the work is new build vs maintenance?\nHow do analysts and engineers split responsibility here?\nPractise the whiteboard\nDraw the five-box pipeline from Q1 without thinking.\nModel a star schema for any business in 5 minutes.\nSketch Kafka partitions and a consumer group.\nExplain a shuffle using only boxes and arrows.\nYou now have the fundamentals. Go get the reps.\nFifty questions is a starting map, not a finish line. Pick five a day, answer them out loud, and sketch the diagram that goes with\neach one. In ten days you will have covered the whole guide twice.\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n•\n20",
+    "solution": null,
+    "sources": [
+      {
+        "document": "50-Data-Engineering-Interview-Questions.pdf",
+        "page": 1
+      }
+    ],
+    "validationStatus": "verified"
+  }
+]
