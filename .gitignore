@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+prompts/
+fix-db.ts
+update-json.js
+update-sections.js
+clean_dataset.js
+
