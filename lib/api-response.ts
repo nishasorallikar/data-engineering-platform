@@ -93,10 +93,10 @@ export function errorResponse(
 }
 
 // Wrapper for route handlers to handle errors and ensure a request ID
-export function withApiRoute(
-  handler: (req: Request, requestId: string) => Promise<NextResponse>
+export function withApiRoute<T = any>(
+  handler: (req: Request, requestId: string, context?: T) => Promise<NextResponse>
 ) {
-  return async (req: Request): Promise<NextResponse> => {
+  return async (req: Request, context?: T): Promise<NextResponse> => {
     // Ideally request ID would come from a header if we were using middleware,
     // but for simplicity we generate it here per request.
     const requestId = req.headers.get('x-request-id') || generateRequestId();
@@ -106,7 +106,7 @@ export function withApiRoute(
       console.log(`[${requestId}] ${req.method} ${req.url}`);
       
       const startTime = performance.now();
-      const response = await handler(req, requestId);
+      const response = await handler(req, requestId, context);
       const duration = (performance.now() - startTime).toFixed(2);
       
       console.log(`[${requestId}] Completed ${response.status} in ${duration}ms`);
