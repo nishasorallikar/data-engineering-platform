@@ -3,8 +3,8 @@ import { QuestionService } from '@/lib/services/questionService';
 import { NotFoundError, ValidationError } from '@/lib/errors';
 import { IdParamSchema } from '@/lib/validators';
 
-export const GET = withApiRoute(async (req, requestId, context: { params: Promise<{ id: string }> }) => {
-  const { id } = await context.params;
+export const GET = withApiRoute(async (req, requestId, context?: { params: Promise<{ id: string }> }) => {
+  const { id } = await context!.params;
 
   const validationResult = IdParamSchema.safeParse({ id });
   if (!validationResult.success) {

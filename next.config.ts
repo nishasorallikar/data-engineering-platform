@@ -6,9 +6,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+
   experimental: {
     // Optimizes imports from large libraries by only loading modules you actually use
     optimizePackageImports: ["lucide-react", "framer-motion", "shadcn", "@base-ui/react"],

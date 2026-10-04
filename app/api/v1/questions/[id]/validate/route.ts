@@ -8,8 +8,8 @@ const ValidateRequestSchema = z.object({
   answer: z.string().min(1, 'Answer is required')
 });
 
-export const POST = withApiRoute(async (req, requestId, context: { params: Promise<{ id: string }> }) => {
-  const { id } = await context.params;
+export const POST = withApiRoute(async (req, requestId, context?: { params: Promise<{ id: string }> }) => {
+  const { id } = await context!.params;
 
   const idValidation = IdParamSchema.safeParse({ id });
   if (!idValidation.success) {

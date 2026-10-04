@@ -1,0 +1,2481 @@
+[
+  {
+    "day": 1,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Combine Two Tables",
+    "problemNumber": 175,
+    "question": "Write an SQL query to report the first name, last name, city, and state of each person.\n\nIf there is no matching address, return NULL.",
+    "explanation": "This is a basic LEFT JOIN problem.\n\nIn Data Engineering, this pattern is common when enriching master datasets with lookup/reference data.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT\n    p.firstName,\n    p.lastName,\n    a.city,\n    a.state\nFROM Person p\nLEFT JOIN Address a\nON p.personId = a.personId;",
+    "pySparkSolution": "result = person_df.join(\n    address_df,\n    \"personId\",\n    \"left\"\n).select(\n    \"firstName\",\n    \"lastName\",\n    \"city\",\n    \"state\"\n)\nMaster data enrichment\nReference joins\nHandling missing lookup records",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 2,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Employees Earning More Than Their Managers",
+    "problemNumber": 181,
+    "question": "Find employees whose salary is higher than their manager.",
+    "explanation": "Self-join is used to compare hierarchical relationships.\n\nUseful in org hierarchy ETL analysis.\nid\nname\nsalary\nmanagerId\n1\nJoe\n70000\n3\n2\nHenry\n80000\n4\n3\nSam\n60000\nNULL\n4\nMax\n90000\nNULL\nEmployee\nJoe",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT e1.name AS Employee\nFROM Employee e1\nJOIN Employee e2\nON e1.managerId = e2.id\nWHERE e1.salary > e2.salary;",
+    "pySparkSolution": "emp = employee_df.alias(\"e1\")\nmgr = employee_df.alias(\"e2\")\n\nresult = emp.join(\n    mgr,\n    emp.managerId == mgr.id\n).filter(\n    emp.salary > mgr.salary\n).select(\n    emp.name.alias(\"Employee\")\n)\nHierarchical joins\nOrg reporting analysis\nParent-child comparison",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 3,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Duplicate Emails",
+    "problemNumber": 182,
+    "question": "Find all duplicate emails.",
+    "explanation": "Classic deduplication pattern.\n\nWidely used in ETL cleanup.\nid\nemail\n1\na@gmail.com\n2\nb@gmail.com\n3\na@gmail.com\nEmail\na@gmail.com",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT email\nFROM Person\nGROUP BY email\nHAVING COUNT(*) > 1;",
+    "pySparkSolution": "from pyspark.sql.functions import count\n\nresult = person_df.groupBy(\"email\") .agg(count(\"*\").alias(\"cnt\")) .filter(\"cnt > 1\") .select(\"email\")\nData quality checks\nDedup pipelines\nIdentity resolution",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 4,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Customers Who Never Order",
+    "problemNumber": 183,
+    "question": "Find customers who never placed an order.",
+    "explanation": "This is an Anti-Join pattern.\n\nCommon in churn and inactivity analysis.\nid\nname\n1\nJoe\n2\nHenry\n3\nSam\n4\nMax\nid\ncustomerId\n1\n3\n2\n1\nCustomers\nHenry\nMax",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT c.name AS Customers\nFROM Customers c\nLEFT JOIN Orders o\nON c.id = o.customerId\nWHERE o.customerId IS NULL;",
+    "pySparkSolution": "result = customers_df.join(\n    orders_df,\n    customers_df.id == orders_df.customerId,\n    \"left_anti\"\n).select(\n    customers_df.name.alias(\"Customers\")\n)\nAnti-join logic\nChurn detection\nMissing transaction analysis",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 5,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Big Countries",
+    "problemNumber": 595,
+    "question": "Find countries where:\n- area >= 3000000\nOR\n- population >= 25000000",
+    "explanation": "Simple filtering.\n\nCommon in warehouse fact filtering.\nname\ncontinent\narea\npopulation\ngdp\nAfghanistan\nAsia\n652230\n25500100\n20343000000\nAlbania\nEurope\n28748\n2831741\n12960000000\nAlgeria\nAfrica\n2381741\n37100000\n188681000000\nname\npopulation\narea\nAfghanistan\n25500100\n652230\nAlgeria\n37100000\n2381741",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT\n    name,\n    population,\n    area\nFROM World\nWHERE area >= 3000000\n   OR population >= 25000000;",
+    "pySparkSolution": "result = world_df.filter(\n    (world_df.area >= 3000000) |\n    (world_df.population >= 25000000)\n).select(\n    \"name\",\n    \"population\",\n    \"area\"\n)\nFact filtering\nData reduction\nPredicate pushdown optimization",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 6,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Department Highest Salary",
+    "problemNumber": 184,
+    "question": "Find employees who have the highest salary in each department.\n\nReturn department name, employee name, and salary.",
+    "explanation": "This combines JOIN + GROUP BY + MAX.\n\nCommon in DE for top-value aggregation per business dimension.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT\n    d.name AS Department,\n    e.name AS Employee,\n    e.salary AS Salary\nFROM Employee e\nJOIN Department d\n    ON e.departmentId = d.id\nJOIN (\n    SELECT departmentId, MAX(salary) AS max_salary\n    FROM Employee\n    GROUP BY departmentId\n) m\nON e.departmentId = m.departmentId\nAND e.salary = m.max_salary;",
+    "pySparkSolution": "from pyspark.sql.functions import max\n\nmax_salary = employee_df.groupBy(\"departmentId\")\n    .agg(max(\"salary\").alias(\"max_salary\"))\n\nresult = employee_df.join(\n    max_salary,\n    (employee_df.departmentId == max_salary.departmentId) &\n    (employee_df.salary == max_salary.max_salary)\n).join(\n    department_df,\n    employee_df.departmentId == department_df.id\n).select(\n    department_df.name.alias(\"Department\"),\n    employee_df.name.alias(\"Employee\"),\n    employee_df.salary.alias(\"Salary\")\n)\nTop metrics per dimension\nBusiness KPI reporting\nAggregation pipelines",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 7,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Second Highest Salary",
+    "problemNumber": 176,
+    "question": "Find the second highest salary from Employee table.\nIf none exists, return NULL.",
+    "explanation": "Ranking without window functions.\n\nOften used in ordered aggregation logic.\nid\nsalary\n1\n100\n2\n200\n3\n300\nSecondHighestSalary\n200",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT (\n    SELECT DISTINCT salary\n    FROM Employee\n    ORDER BY salary DESC\n    LIMIT 1 OFFSET 1\n) AS SecondHighestSalary;",
+    "pySparkSolution": "salaries = employee_df.select(\"salary\").distinct()\n    .orderBy(\"salary\", ascending=False)\n\nresult = salaries.limit(2)\nOrdered value retrieval\nRanking datasets\nPercentile-style logic",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 8,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Nth Highest Salary",
+    "problemNumber": 177,
+    "question": "Find the Nth highest salary.",
+    "explanation": "Generalized ranking logic.\n\nUseful for dynamic reporting queries.\nid\nsalary\n1\n100\n2\n200\n3\n300\n4\n400\nN = 3\ngetNthHighestSalary(3)\n200",
+    "expectedOutput": null,
+    "sqlSolution": "CREATE FUNCTION getNthHighestSalary(N INT) RETURNS INT\nBEGIN\n  RETURN (\n      SELECT DISTINCT salary\n      FROM Employee\n      ORDER BY salary DESC\n      LIMIT 1 OFFSET N-1\n  );\nEND;",
+    "pySparkSolution": "N = 3\n\nresult = employee_df.select(\"salary\")\n    .distinct()\n    .orderBy(\"salary\", ascending=False)\n    .collect()[N-1][0]\nDynamic rank retrieval\nParameterized queries\nGeneric KPI calculations",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 9,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Rank Scores",
+    "problemNumber": 178,
+    "question": "Rank scores.\nSame score should receive same rank.",
+    "explanation": "Intro to window functions.\n\nUsed heavily in analytics engineering.\nid\nscore\n1\n3.5\n2\n3.65\n3\n4.0\n4\n3.65\nscore\nrank\n4.0\n1\n3.65\n2\n3.65\n2\n3.5\n3",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT\n    score,\n    DENSE_RANK() OVER (\n        ORDER BY score DESC\n    ) AS rank\nFROM Scores;",
+    "pySparkSolution": "from pyspark.sql.window import Window\nfrom pyspark.sql.functions import dense_rank\n\nwindow_spec = Window.orderBy(\n    scores_df.score.desc()\n)\n\nresult = scores_df.withColumn(\n    \"rank\",\n    dense_rank().over(window_spec)\n)\nWindow functions\nLeaderboard ranking\nPartition-based analytics",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 10,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Classes With At Least 5 Students",
+    "problemNumber": 596,
+    "question": "Find classes with at least 5 students.",
+    "explanation": "GROUP BY + HAVING threshold filtering.\n\nVery common in cohort analysis.\nstudent\nclass\nA\nMath\nB\nMath\nC\nMath\nD\nMath\nE\nMath\nF\nScience\nclass\nMath",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT class\nFROM Courses\nGROUP BY class\nHAVING COUNT(*) >= 5;",
+    "pySparkSolution": "from pyspark.sql.functions import count\n\nresult = courses_df.groupBy(\"class\")\n    .agg(count(\"*\").alias(\"cnt\"))\n    .filter(\"cnt >= 5\")\n    .select(\"class\")\nThreshold filtering\nCohort detection\nAggregation rules",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 11,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Customer Placing Largest Number of Orders",
+    "problemNumber": 586,
+    "question": "Find the customer_number of the customer who placed the largest number of orders.",
+    "explanation": "This is aggregation + ranking logic.\n\nCommon in DE when identifying high-frequency entities like top customers, top products, or top transactions.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT customer_number\nFROM Orders\nGROUP BY customer_number\nORDER BY COUNT(*) DESC\nLIMIT 1;",
+    "pySparkSolution": "from pyspark.sql.functions import count, desc\n\nresult = orders_df.groupBy(\"customer_number\")\n    .agg(count(\"*\").alias(\"order_count\"))\n    .orderBy(desc(\"order_count\"))\n    .limit(1)\n    .select(\"customer_number\")\nFrequency analysis\nCustomer behavior tracking\nTop-N aggregations",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 12,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Department Top Three Salaries",
+    "problemNumber": 185,
+    "question": "Find employees with top 3 salaries in each department.",
+    "explanation": "Classic PARTITION BY + DENSE_RANK use case.\n\nVery common in top-N retrieval per business segment.",
+    "expectedOutput": null,
+    "sqlSolution": "WITH ranked AS (\n    SELECT\n        name,\n        salary,\n        departmentId,\n        DENSE_RANK() OVER (\n            PARTITION BY departmentId\n            ORDER BY salary DESC\n        ) AS rnk\n    FROM Employee\n)\nSELECT\n    d.name AS Department,\n    r.name AS Employee,\n    r.salary\nFROM ranked r\nJOIN Department d\nON r.departmentId = d.id\nWHERE r.rnk <= 3;",
+    "pySparkSolution": "from pyspark.sql.window import Window\nfrom pyspark.sql.functions import dense_rank\n\nwindow_spec = Window.partitionBy(\"departmentId\")\n    .orderBy(employee_df.salary.desc())\n\nranked = employee_df.withColumn(\n    \"rnk\",\n    dense_rank().over(window_spec)\n)\n\nresult = ranked.filter(\"rnk <= 3\")\n    .join(\n        department_df,\n        ranked.departmentId == department_df.id\n    ).select(\n        department_df.name.alias(\"Department\"),\n        ranked.name.alias(\"Employee\"),\n        ranked.salary.alias(\"Salary\")\n    )\nPartitioned ranking\nTop-N reporting\nAnalytics pipelines",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 13,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Game Play Analysis I",
+    "problemNumber": 511,
+    "question": "Find the first login date for each player.",
+    "explanation": "MIN + GROUP BY for first occurrence.\n\nWidely used in customer onboarding and event-stream analysis.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT\n    player_id,\n    MIN(event_date) AS first_login\nFROM Activity\nGROUP BY player_id;",
+    "pySparkSolution": "from pyspark.sql.functions import min\n\nresult = activity_df.groupBy(\"player_id\")\n    .agg(\n        min(\"event_date\").alias(\"first_login\")\n    )\nFirst occurrence tracking\nCustomer activation analytics\nEvent processing",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 14,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Game Play Analysis II",
+    "problemNumber": 512,
+    "question": "Find each player's first login device.",
+    "explanation": "First occurrence + JOIN.\n\nUseful for identifying acquisition channels or first-event metadata.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT\n    a.player_id,\n    a.device_id\nFROM Activity a\nJOIN (\n    SELECT\n        player_id,\n        MIN(event_date) AS first_date\n    FROM Activity\n    GROUP BY player_id\n) f\nON a.player_id = f.player_id\nAND a.event_date = f.first_date;",
+    "pySparkSolution": "from pyspark.sql.functions import min\n\nfirst_login = activity_df.groupBy(\"player_id\")\n    .agg(\n        min(\"event_date\").alias(\"first_date\")\n    )\n\nresult = activity_df.join(\n    first_login,\n    (activity_df.player_id == first_login.player_id) &\n    (activity_df.event_date == first_login.first_date)\n).select(\n    activity_df.player_id,\n    activity_df.device_id\n)\nEvent enrichment\nFirst-touch attribution\nBehavioral analytics",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 15,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Product Sales Analysis I",
+    "problemNumber": 1068,
+    "question": "Report product_name, year, and price for each sale.",
+    "explanation": "Basic fact-to-dimension JOIN.\n\nCommon in star-schema warehouse joins.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT\n    p.product_name,\n    s.year,\n    s.price\nFROM Sales s\nJOIN Product p\nON s.product_id = p.product_id;",
+    "pySparkSolution": "result = sales_df.join(\n    product_df,\n    \"product_id\"\n).select(\n    \"product_name\",\n    \"year\",\n    \"price\"\n)\nFact + dimension joins\nWarehouse reporting\nProduct analytics",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 16,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Product Sales Analysis II",
+    "problemNumber": 1069,
+    "question": "Report total quantity sold for each product.",
+    "explanation": "Basic SUM + GROUP BY aggregation.\n\nVery common in ETL pipelines for revenue/volume rollups.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT\n    product_id,\n    SUM(quantity) AS total_quantity\nFROM Sales\nGROUP BY product_id;",
+    "pySparkSolution": "from pyspark.sql.functions import sum\n\nresult = sales_df.groupBy(\"product_id\")\n    .agg(\n        sum(\"quantity\").alias(\"total_quantity\")\n    )\nFact table aggregation\nSales rollups\nBatch ETL summaries",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 17,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Sales Analysis I",
+    "problemNumber": 1082,
+    "question": "Find the seller(s) with the highest total sales amount.",
+    "explanation": "Aggregation + ranking after JOIN.\n\nCommon in sales KPI dashboards.",
+    "expectedOutput": null,
+    "sqlSolution": "WITH seller_totals AS (\n    SELECT\n        seller_id,\n        SUM(price) AS total_sales\n    FROM Sales\n    GROUP BY seller_id\n)\nSELECT seller_id\nFROM seller_totals\nWHERE total_sales = (\n    SELECT MAX(total_sales)\n    FROM seller_totals\n);",
+    "pySparkSolution": "from pyspark.sql.functions import sum, max\n\nseller_totals = sales_df.groupBy(\"seller_id\")\n    .agg(\n        sum(\"price\").alias(\"total_sales\")\n    )\n\nmax_sales = seller_totals.agg(\n    max(\"total_sales\").alias(\"mx\")\n)\n\nresult = seller_totals.crossJoin(max_sales)\n    .filter(\n        seller_totals.total_sales == max_sales.mx\n    ).select(\"seller_id\")\nKPI pipelines\nRevenue leaderboards\nAggregated ranking",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 18,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Not Boring Movies",
+    "problemNumber": 620,
+    "question": "Find movies with:\n- odd id\n- description != 'boring'\n\nSort by rating DESC.",
+    "explanation": "Filtering + sorting logic.\n\nCommon in recommendation and data-cleaning pipelines.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT *\nFROM Cinema\nWHERE id % 2 = 1\nAND description != 'boring'\nORDER BY rating DESC;",
+    "pySparkSolution": "result = cinema_df.filter(\n    (cinema_df.id % 2 == 1) &\n    (cinema_df.description != \"boring\")\n).orderBy(\n    cinema_df.rating.desc()\n)\nConditional filtering\nSorting pipelines\nData quality filters",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 19,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Total Sales Amount by Year",
+    "problemNumber": 1393,
+    "question": "Calculate total sales amount by year.",
+    "explanation": "Date-range expansion + yearly aggregation.\n\nVery common in financial ETL.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT\n    product_id,\n    YEAR(period_start) AS year,\n    DATEDIFF(period_end, period_start) + 1 * average_daily_sales AS total_amount\nFROM Sales;",
+    "pySparkSolution": "from pyspark.sql.functions import year, datediff\n\nresult = sales_df.select(\n    \"product_id\",\n    year(\"period_start\").alias(\"year\"),\n    ((datediff(\"period_end\", \"period_start\") + 1) * sales_df.average_daily_sales).alias(\"total_amount\")\n)\nTime-series aggregation\nFinancial rollups\nPartition-based yearly ETL",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 20,
+    "topicNumber": 1,
+    "topicTitle": "Basic JOINs & Aggregations",
+    "title": "Average Selling Price",
+    "problemNumber": 1251,
+    "question": "Find average selling price for each product.\nWeighted average = total revenue / total units sold.",
+    "explanation": "Weighted aggregation.\n\nVery common in pricing analytics and revenue engineering.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT\n    p.product_id,\n    ROUND(\n        SUM(p.price * u.units) /\n        SUM(u.units),\n        2\n    ) AS average_price\nFROM Prices p\nJOIN UnitsSold u\nON p.product_id = u.product_id\nAND u.purchase_date BETWEEN p.start_date AND p.end_date\nGROUP BY p.product_id;",
+    "pySparkSolution": "from pyspark.sql.functions import sum, round\n\njoined = prices_df.join(\n    units_df,\n    (prices_df.product_id == units_df.product_id) &\n    (units_df.purchase_date.between(prices_df.start_date,prices_df.end_date))\n)\n\nresult = joined.groupBy(prices_df.product_id).agg(\n    round(\n        sum(prices_df.price * units_df.units) /\n        sum(units_df.units),\n        2\n    ).alias(\"average_price\")\n)\nWeighted calculations\nRevenue optimization\nPricing ETL logic",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 21,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "Rising Temperature",
+    "problemNumber": 197,
+    "question": "Find all dates where temperature was higher than the previous day.",
+    "explanation": "This is a classic LAG()/self-join pattern for comparing consecutive rows.\n\nIn Data Engineering, this is useful for anomaly detection, trend monitoring, and time-series comparisons.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT w1.id\nFROM Weather w1\nJOIN Weather w2\nON DATEDIFF(w1.recordDate, w2.recordDate) = 1\nWHERE w1.temperature > w2.temperature;",
+    "pySparkSolution": "from pyspark.sql.window import Window\nfrom pyspark.sql.functions import lag,col\n\nwindow_spec = Window.orderBy(\"recordDate\")\n\nresult = weather_df.withColumn(\n    \"prev_temp\",\n    lag(\"temperature\").over(window_spec)\n).filter(\n    col(\"temperature\") > col(\"prev_temp\")\n).select(\"id\")\nTime-series comparisons\nAnomaly detection\nConsecutive-event analytics",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 22,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "Game Play Analysis III",
+    "problemNumber": 534,
+    "question": "For each player, calculate cumulative games played over time.",
+    "explanation": "Running total using SUM() OVER (ORDER BY).\n\nCommon in event-stream processing and cumulative KPI tracking.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT\n    player_id,\n    event_date,\n    SUM(games_played) OVER (\n        PARTITION BY player_id\n        ORDER BY event_date\n    ) AS games_played_so_far\nFROM Activity;",
+    "pySparkSolution": "from pyspark.sql.window import Window\nfrom pyspark.sql.functions import sum\n\nwindow_spec = Window.partitionBy(\"player_id\").orderBy(\"event_date\")\n\nresult = activity_df.withColumn(\n    \"games_played_so_far\",\n    sum(\"games_played\").over(window_spec)\n)\nRunning totals\nIncremental aggregation\nStreaming metrics",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 23,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "Game Play Analysis IV",
+    "problemNumber": 550,
+    "question": "Find fraction of players who logged in again the day after first login.",
+    "explanation": "Uses next/previous row logic (LEAD/LAG or joins).\n\nVery common in retention analysis.",
+    "expectedOutput": null,
+    "sqlSolution": "WITH first_login AS (\n    SELECT\n        player_id,\n        MIN(event_date) AS first_date\n    FROM Activity\n    GROUP BY player_id\n)\nSELECT ROUND(\n    COUNT(DISTINCT a.player_id) /\n    (SELECT COUNT(DISTINCT player_id) FROM Activity),\n    2\n) AS fraction\nFROM Activity a\nJOIN first_login f\nON a.player_id = f.player_id\nWHERE DATEDIFF(a.event_date, f.first_date) = 1;",
+    "pySparkSolution": "from pyspark.sql.functions import min, countDistinct, datediff, round, col\n\nfirst_login = activity_df.groupBy(\"player_id\").agg(min(\"event_date\").alias(\"first_date\"))\n\nretained = activity_df.join(first_login, \"player_id\").filter(datediff(col(\"event_date\"), col(\"first_date\")) == 1)\n\nresult = retained.agg(round(countDistinct(\"player_id\") / activity_df.select(\"player_id\").distinct().count(),2).alias(\"fraction\"))\nRetention analytics\nCohort analysis\nNext-event tracking",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 24,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "Find Cumulative Salary of an Employee",
+    "problemNumber": 579,
+    "question": "Find cumulative salary for each employee by month.",
+    "explanation": "Running sum using partitioned windows.\n\nUsed in payroll and month-over-month analytics.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT\n    id,\n    month,\n    SUM(salary) OVER (\n        PARTITION BY id\n        ORDER BY month\n    ) AS cumulative_salary\nFROM Employee;",
+    "pySparkSolution": "from pyspark.sql.window import Window\nfrom pyspark.sql.functions import sum\n\nwindow_spec = Window.partitionBy(\"id\").orderBy(\"month\")\n\nresult = employee_df.withColumn(\n    \"cumulative_salary\",\n    sum(\"salary\").over(window_spec)\n)\nPayroll rollups\nRunning balances\nTime-based ETL",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 25,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "Running Total for Different Genders",
+    "problemNumber": 1308,
+    "question": "Calculate running total of score for each gender.",
+    "explanation": "Partitioned cumulative sum.\n\nUseful in segmented analytics.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT\n    gender,\n    day,\n    SUM(score_points) OVER (\n        PARTITION BY gender\n        ORDER BY day\n    ) AS total\nFROM Scores;",
+    "pySparkSolution": "from pyspark.sql.window import Window\nfrom pyspark.sql.functions import sum\n\nwindow_spec = Window.partitionBy(\"gender\").orderBy(\"day\")\n\nresult = scores_df.withColumn(\n    \"total\",\n    sum(\"score_points\").over(window_spec)\n)\nPartitioned running totals\nSegment analytics\nStream aggregations",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 26,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "Get the Second Most Recent Activity",
+    "problemNumber": 1369,
+    "question": "Find the second most recent activity for each user.",
+    "explanation": "This uses ROW_NUMBER() over partitions to rank events by time.\n\nIn Data Engineering, this is used for audit trails, last-N event tracking, and user behavior sequencing.",
+    "expectedOutput": null,
+    "sqlSolution": "WITH ranked AS (\n    SELECT *,\n           ROW_NUMBER() OVER (\n               PARTITION BY user_id\n               ORDER BY activity_date DESC\n           ) AS rn\n    FROM UserActivity\n)\nSELECT user_id, activity, activity_date\nFROM ranked\nWHERE rn = 2;",
+    "pySparkSolution": "from pyspark.sql.window import Window\nfrom pyspark.sql.functions import row_number,col\n\nwindow_spec = Window.partitionBy(\"user_id\").orderBy(col(\"activity_date\").desc())\n\nranked = user_activity_df.withColumn(\"rn\",row_number().over(window_spec))\n\nresult = ranked.filter(\"rn = 2\").select(\"user_id\",\"activity\",\"activity_date\")\nEvent sequencing\nAudit logs\nBehavioral tracking",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 27,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "The Most Recent Three Orders",
+    "problemNumber": 1341,
+    "question": "Find the most recent 3 orders for each customer.",
+    "explanation": "Top-N per group using ROW_NUMBER().\n\nUsed in CRM systems and recent activity feeds.",
+    "expectedOutput": null,
+    "sqlSolution": "WITH ranked AS (\n    SELECT *,\n           ROW_NUMBER() OVER (\n               PARTITION BY customer_id\n               ORDER BY order_date DESC\n           ) AS rn\n    FROM Orders\n)\nSELECT customer_id, order_id, order_date\nFROM ranked\nWHERE rn <= 3;",
+    "pySparkSolution": "from pyspark.sql.window import Window\nfrom pyspark.sql.functions import row_number,col\n\nwindow_spec = Window.partitionBy(\"customer_id\").orderBy(col(\"order_date\").desc())\n\nranked = orders_df.withColumn(\"rn\",row_number().over(window_spec))\n\nresult = ranked.filter(\"rn <= 3\")\nTop-N extraction\nCustomer activity feeds\nStreaming window outputs",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 28,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "The Most Recent Orders for Each Product",
+    "problemNumber": 1384,
+    "question": "Find the most recent order for each product.",
+    "explanation": "Latest record per group pattern.\n\nVery common in inventory and product tracking systems.",
+    "expectedOutput": null,
+    "sqlSolution": "WITH ranked AS (\n    SELECT *,\n           ROW_NUMBER() OVER (\n               PARTITION BY product_id\n               ORDER BY order_date DESC\n           ) AS rn\n    FROM Orders\n)\nSELECT product_id, order_id, order_date\nFROM ranked\nWHERE rn = 1;",
+    "pySparkSolution": "from pyspark.sql.window import Window\nfrom pyspark.sql.functions import row_number,col\n\nwindow_spec = Window.partitionBy(\"product_id\").orderBy(col(\"order_date\").desc())\n\nranked = orders_df.withColumn(\"rn\",row_number().over(window_spec))\n\nresult = ranked.filter(\"rn = 1\")\nLatest snapshot generation\nProduct lifecycle tracking\nCDC-style transformations",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 29,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "Highest Grade For Each Student",
+    "problemNumber": 1112,
+    "question": "Find highest grade for each student.",
+    "explanation": "Simple MAX aggregation per group.\n\nUsed in academic analytics and best-score tracking.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT\n    student_id,\n    MAX(grade) AS highest_grade\nFROM Enrollments\nGROUP BY student_id;",
+    "pySparkSolution": "from pyspark.sql.functions import max\n\nresult = enrollments_df.groupBy(\"student_id\").agg(max(\"grade\").alias(\"highest_grade\"))\nBest-score tracking\nKPI aggregation\nPerformance analytics",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 30,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "Immediate Food Delivery I",
+    "problemNumber": 1173,
+    "question": "Find percentage of immediate orders (order_date = customer_pref_delivery_date).",
+    "explanation": "Conditional aggregation with CASE logic.\n\nUsed in SLA and delivery performance tracking.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT\n    ROUND(\n        100.0 * SUM(CASE\n            WHEN order_date = customer_pref_delivery_date THEN 1\n            ELSE 0\n        END) / COUNT(*),\n        2\n    ) AS immediate_percentage\nFROM Delivery;",
+    "pySparkSolution": "from pyspark.sql.functions import when, count, sum, col\n\nresult = delivery_df.select((100 * sum(when(col(\"order_date\") == col(\"customer_pref_delivery_date\"), 1).otherwise(0)) / count(\"*\")).alias(\"immediate_percentage\"))\nSLA monitoring\nOperational metrics\nConditional KPIs",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 31,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "Immediate Food Delivery II",
+    "problemNumber": 1174,
+    "question": "Find the percentage of first orders that are immediate.",
+    "explanation": "This is cohort-based filtering using MIN + conditional aggregation.\n\nIn DE, this is used for first-touch SLA and onboarding performance.",
+    "expectedOutput": null,
+    "sqlSolution": "WITH first_orders AS (\n    SELECT *\n    FROM (\n        SELECT *,\n               ROW_NUMBER() OVER (\n                   PARTITION BY customer_id\n                   ORDER BY order_date\n               ) AS rn\n        FROM Delivery\n    ) t\n    WHERE rn = 1\n)\nSELECT\n    ROUND(\n        100.0 * SUM(\n            CASE\n                WHEN order_date = customer_pref_delivery_date THEN 1\n                ELSE 0\n            END\n        ) / COUNT(*),\n        2\n    ) AS immediate_percentage\nFROM first_orders;",
+    "pySparkSolution": "from pyspark.sql.window import Window\nfrom pyspark.sql.functions import row_number, when, col, sum, count\n\nwindow_spec = Window.partitionBy(\"customer_id\").orderBy(\"order_date\")\n\nfirst_orders = delivery_df.withColumn(\n    \"rn\",\n    row_number().over(window_spec)\n).filter(\"rn = 1\")\n\nresult = first_orders.select(\n    (100 * sum(\n        when(col(\"order_date\") == col(\"customer_pref_delivery_date\"), 1).otherwise(0)\n    ) / count(\"*\")).alias(\"immediate_percentage\")\n)\nFirst-touch analytics\nCohort analysis\nSLA tracking",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 32,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "Restaurant Growth",
+    "problemNumber": 1321,
+    "question": "Calculate 7-day moving sum of customer visits.",
+    "explanation": "Rolling window aggregation using SUM OVER RANGE.\n\nUsed heavily in time-series dashboards and traffic analytics.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT\n    visited_on,\n    SUM(amount) OVER (\n        ORDER BY visited_on\n        ROWS BETWEEN 6 PRECEDING AND CURRENT ROW\n    ) AS rolling_sum\nFROM Customer;",
+    "pySparkSolution": "from pyspark.sql.window import Window\nfrom pyspark.sql.functions import sum\n\nwindow_spec = Window.orderBy(\"visited_on\").rowsBetween(-6, 0)\n\nresult = customer_df.withColumn(\n    \"rolling_sum\",\n    sum(\"amount\").over(window_spec)\n)\nMoving averages\nTraffic monitoring\nTime-window analytics",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 33,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "Number of Calls Between Two Persons",
+    "problemNumber": 1645,
+    "question": "Find number of calls between two people regardless of direction.",
+    "explanation": "Symmetric deduplication using CASE logic.\n\nUsed in communication analytics and graph relationships.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT\n    LEAST(from_id, to_id) AS person1,\n    GREATEST(from_id, to_id) AS person2,\n    COUNT(*) AS call_count\nFROM Calls\nGROUP BY\n    LEAST(from_id, to_id),\n    GREATEST(from_id, to_id);",
+    "pySparkSolution": "from pyspark.sql.functions import least, greatest, count\n\nresult = calls_df.withColumn(\n    \"person1\",\n    least(\"from_id\", \"to_id\")\n).withColumn(\n    \"person2\",\n    greatest(\"from_id\", \"to_id\")\n).groupBy(\"person1\", \"person2\").agg(count(\"*\").alias(\"call_count\"))\nGraph analytics\nDeduplication\nBidirectional relationships",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 34,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "Biggest Window Between Visits",
+    "problemNumber": 1701,
+    "question": "Find maximum time gap between consecutive visits.",
+    "explanation": "LAG() used for difference computation.\n\nUsed in churn detection and inactivity analysis.",
+    "expectedOutput": null,
+    "sqlSolution": "WITH gaps AS (\n    SELECT *,\n           LAG(visit_date) OVER (\n               PARTITION BY user_id\n               ORDER BY visit_date\n           ) AS prev_date\n    FROM UserVisits\n)\nSELECT MAX(DATEDIFF(visit_date, prev_date)) AS max_gap\nFROM gaps;",
+    "pySparkSolution": "from pyspark.sql.window import Window\nfrom pyspark.sql.functions import lag, datediff, max\n\nwindow_spec = Window.partitionBy(\"user_id\").orderBy(\"visit_date\")\n\ndf = user_visits_df.withColumn(\n    \"prev_date\",\n    lag(\"visit_date\").over(window_spec)\n)\n\nresult = df.select(\n    max(datediff(\"visit_date\", \"prev_date\")).alias(\"max_gap\")\n)\nSession gap analysis\nRetention metrics\nChurn detection",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 35,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "Find Total Time Spent by Each Employee",
+    "problemNumber": 1699,
+    "question": "Calculate total time spent by each employee in office.",
+    "explanation": "Difference between timestamps aggregated per employee.\n\nUsed in workforce analytics.",
+    "expectedOutput": null,
+    "sqlSolution": "SELECT\n    emp_id,\n    SUM(TIMESTAMPDIFF(HOUR, in_time, out_time)) AS total_time\nFROM Logs\nGROUP BY emp_id;",
+    "pySparkSolution": "from pyspark.sql.functions import sum, unix_timestamp\n\nresult = logs_df.withColumn(\n    \"duration\",\n    (unix_timestamp(\"out_time\") - unix_timestamp(\"in_time\")) / 3600\n).groupBy(\"emp_id\").agg(sum(\"duration\").alias(\"total_time\"))\nTime duration computation\nWorkforce analytics\nEvent duration aggregation",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 36,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "Percentage of Users Attended Contest",
+    "problemNumber": 1633,
+    "question": "Find percentage of users who registered for each contest.",
+    "explanation": "This uses COUNT + GROUP BY + ratio calculation.\n\nCommon in engagement and participation analytics.",
+    "expectedOutput": "contest_id\npercentage\n1\n100.00\n2\n66.67",
+    "sqlSolution": "SELECT\n    contest_id,\n    ROUND(\n        100.0 * COUNT(DISTINCT user_id) /\n        (SELECT COUNT(DISTINCT user_id) FROM Register),\n        2\n    ) AS percentage\nFROM Register\nGROUP BY contest_id;",
+    "pySparkSolution": "from pyspark.sql.functions import countDistinct, round, col\n\ntotal_users = register_df.select(countDistinct(\"user_id\")).collect()[0][0]\n\nresult = register_df.groupBy(\"contest_id\")\n    .agg(countDistinct(\"user_id\").alias(\"cnt\"))\n    .withColumn(\n        \"percentage\",\n        round(100 * col(\"cnt\") / total_users, 2)\n    )\nParticipation metrics\nFunnel analytics\nEngagement tracking",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 37,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "Confirmation Rate",
+    "problemNumber": 1934,
+    "question": "Find confirmation rate for each user.",
+    "explanation": "Conditional aggregation using CASE WHEN.\n\nUsed in verification systems and funnel tracking.",
+    "expectedOutput": "user_id\nconfirmation_rate\n1\n1.00\n2\n0.00",
+    "sqlSolution": "SELECT\n    s.user_id,\n    ROUND(\n        AVG(CASE WHEN c.action = 'confirmed' THEN 1 ELSE 0 END),\n        2\n    ) AS confirmation_rate\nFROM Signups s\nLEFT JOIN Confirmations c\nON s.user_id = c.user_id\nGROUP BY s.user_id;",
+    "pySparkSolution": "from pyspark.sql.functions import when, avg, col\n\nresult = signups_df.join(\n    confirmations_df,\n    \"user_id\",\n    \"left\"\n).groupBy(\"user_id\")\n    .agg(\n        avg(when(col(\"action\") == \"confirmed\", 1).otherwise(0)).alias(\"confirmation_rate\")\n    )\nFunnel conversion\nUser verification pipelines\nEvent-based metrics",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 38,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "League Statistics",
+    "problemNumber": 1783,
+    "question": "Compute league statistics from matches.",
+    "explanation": "Multi-source aggregation using UNION.\n\nUsed in sports analytics and multi-stream ETL.",
+    "expectedOutput": "team\nwins\ndraws\nlosses\nA\n1\n0\n0\nB\n0\n1\n1",
+    "sqlSolution": "SELECT team,\n       SUM(win) AS wins,\n       SUM(draw) AS draws,\n       SUM(loss) AS losses\nFROM (\n    SELECT team1 AS team,\n           CASE WHEN score1 > score2 THEN 1 ELSE 0 END AS win,\n           CASE WHEN score1 = score2 THEN 1 ELSE 0 END AS draw,\n           CASE WHEN score1 < score2 THEN 1 ELSE 0 END AS loss\n    FROM Matches\n\n    UNION ALL\n\n    SELECT team2 AS team,\n           CASE WHEN score2 > score1 THEN 1 ELSE 0 END,\n           CASE WHEN score2 = score1 THEN 1 ELSE 0 END,\n           CASE WHEN score2 < score1 THEN 1 ELSE 0 END\n    FROM Matches\n) t\nGROUP BY team;",
+    "pySparkSolution": "from pyspark.sql.functions import when, col\n\nteam1 = matches_df.select(\n    col(\"team1\").alias(\"team\"),\n    when(col(\"score1\") > col(\"score2\"), 1).otherwise(0).alias(\"win\"),\n    when(col(\"score1\") == col(\"score2\"), 1).otherwise(0).alias(\"draw\"),\n    when(col(\"score1\") < col(\"score2\"), 1).otherwise(0).alias(\"loss\")\n)\n\nteam2 = matches_df.select(\n    col(\"team2\").alias(\"team\"),\n    when(col(\"score2\") > col(\"score1\"), 1).otherwise(0).alias(\"win\"),\n    when(col(\"score2\") == col(\"score1\"), 1).otherwise(0).alias(\"draw\"),\n    when(col(\"score2\") < col(\"score1\"), 1).otherwise(0).alias(\"loss\")\n)\n\nresult = team1.union(team2).groupBy(\"team\").sum()\nMulti-stream ETL merging\nSports analytics pipelines\nUnion-based transformations",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 39,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "Group Sold Products By The Date",
+    "problemNumber": 1484,
+    "question": "Group products sold per date as concatenated string.",
+    "explanation": "String aggregation per group.\n\nUsed in reporting and denormalized outputs.",
+    "expectedOutput": "sell_date\nproducts\n2024-01-01\nA,B\n2024-01-02\nA",
+    "sqlSolution": "SELECT\n    sell_date,\n    GROUP_CONCAT(DISTINCT product ORDER BY product) AS products\nFROM Activities\nGROUP BY sell_date;",
+    "pySparkSolution": "from pyspark.sql.functions import collect_set, concat_ws\n\nresult = activities_df.groupBy(\"sell_date\")\n    .agg(\n        concat_ws(\",\", collect_set(\"product\")).alias(\"products\")\n    )\nDenormalized reporting\nData aggregation for dashboards\nString aggregation patterns",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 40,
+    "topicNumber": 2,
+    "topicTitle": "Window Functions & Ranking",
+    "title": "Number of Employees Which Report to Each Manager",
+    "problemNumber": 1731,
+    "question": "Find number of employees under each manager.",
+    "explanation": "Self-join + aggregation.\n\nCommon in organizational hierarchy analytics.",
+    "expectedOutput": "manager\nreports_count\nJohn\n3",
+    "sqlSolution": "SELECT\n    m.name AS manager,\n    COUNT(e.id) AS reports_count\nFROM Employees e\nJOIN Employees m\nON e.manager_id = m.id\nGROUP BY m.name;",
+    "pySparkSolution": "from pyspark.sql.functions import count\n\nemp = employees_df.alias(\"e\")\nmgr = employees_df.alias(\"m\")\n\nresult = emp.join(\n    mgr,\n    emp.manager_id == mgr.id\n).groupBy(mgr.name)\n    .agg(count(emp.id).alias(\"reports_count\"))\nOrg hierarchy analytics\nGraph-like relationships\nAggregated reporting structures",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 41,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "Consecutive Numbers",
+    "problemNumber": 180,
+    "question": "Find all numbers that appear at least 3 times consecutively.",
+    "explanation": "Uses self-join / consecutive row comparison to detect repeating patterns.\n\nIn Data Engineering, this is used for sequence anomaly detection, duplicate event tracking, and stream pattern recognition.",
+    "expectedOutput": "ConsecutiveNums\n1\n2",
+    "sqlSolution": "SELECT DISTINCT l1.num AS ConsecutiveNums\nFROM Logs l1\nJOIN Logs l2\n    ON l1.id = l2.id - 1\nJOIN Logs l3\n    ON l2.id = l3.id - 1\nWHERE l1.num = l2.num\n  AND l2.num = l3.num;",
+    "pySparkSolution": "from pyspark.sql.window import Window\nfrom pyspark.sql.functions import lag, col\n\nwindow_spec = Window.orderBy(\"id\")\n\ndf = logs_df.withColumn(\"prev1\", lag(\"num\", 1).over(window_spec)).withColumn(\"prev2\", lag(\"num\", 2).over(window_spec))\n\nresult = df.filter((col(\"num\") == col(\"prev1\")) & (col(\"num\") == col(\"prev2\"))).select(\"num\").distinct()\nSequence detection\nEvent anomaly tracking\nPattern recognition",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 42,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "Trips and Users",
+    "problemNumber": 262,
+    "question": "Find cancellation rate of trips excluding banned users.",
+    "explanation": "Uses filtering + joins + conditional aggregation.\n\nVery common in data quality validation and KPI tracking.",
+    "expectedOutput": "Day\nCancellation Rate\n2024-01-01\n0.33",
+    "sqlSolution": "SELECT\n    t.request_at AS Day,\n    ROUND(\n        AVG(\n            CASE\n                WHEN t.status != 'completed' THEN 1\n                ELSE 0\n            END\n        ),\n        2\n    ) AS Cancellation Rate\nFROM Trips t\nJOIN Users c\n    ON t.client_id = c.users_id\nJOIN Users d\n    ON t.driver_id = d.users_id\nWHERE c.banned = 'No'\n  AND d.banned = 'No'\nGROUP BY t.request_at;",
+    "pySparkSolution": "from pyspark.sql.functions import when, avg, col\n\nclients = users_df.alias(\"c\")\ndrivers = users_df.alias(\"d\")\ntrips = trips_df.alias(\"t\")\n\nresult = trips.join(clients, col(\"t.client_id\") == col(\"c.users_id\")).join(drivers, col(\"t.driver_id\") == col(\"d.users_id\")).filter((col(\"c.banned\") == \"No\") & (col(\"d.banned\") == \"No\")).groupBy(\"request_at\").agg(avg(when(col(\"status\") != \"completed\", 1).otherwise(0)).alias(\"Cancellation Rate\"))\nData quality filtering\nKPI calculation\nOperational metrics",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 43,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "Sales Person",
+    "problemNumber": 607,
+    "question": "Find salespersons who never sold to RED company.",
+    "explanation": "Uses NOT IN subquery.\n\nVery common in exclusion logic / anti-pattern filtering.",
+    "expectedOutput": "name\nBob\nJohn",
+    "sqlSolution": "SELECT name\nFROM SalesPerson\nWHERE sales_id NOT IN (\n    SELECT o.sales_id\n    FROM Orders o\n    JOIN Company c\n        ON o.com_id = c.com_id\n    WHERE c.name = 'RED'\n);",
+    "pySparkSolution": "from pyspark.sql.functions import col\n\nred_sales = orders_df.join(company_df, \"com_id\").filter(col(\"name\") == \"RED\").select(\"sales_id\")\n\nresult = sales_person_df.join(red_sales, \"sales_id\", \"left_anti\").select(\"name\")\nAnti-joins\nExclusion filtering\nData cleansing",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 44,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "Friend Requests I Acceptance Rate",
+    "problemNumber": 597,
+    "question": "Find overall friend acceptance rate.",
+    "explanation": "Uses subquery + aggregate ratio.\n\nWidely used in conversion funnel analytics.",
+    "expectedOutput": "accept_rate\n0.67",
+    "sqlSolution": "SELECT ROUND(\n    (\n        SELECT COUNT(*)\n        FROM RequestAccepted\n    ) /\n    (\n        SELECT COUNT(*)\n        FROM FriendRequest\n    ),\n    2\n) AS accept_rate;",
+    "pySparkSolution": "accepted = request_accepted_df.count()\nrequested = friend_request_df.count()\n\naccept_rate = round(accepted / requested, 2)\nConversion metrics\nFunnel analysis\nRatio calculations",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 45,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "Median Employee Salary",
+    "problemNumber": 569,
+    "question": "Find median salary for each company.",
+    "explanation": "Uses ranking / CTE / row-position filtering.\n\nA common statistical transformation in analytics pipelines.",
+    "expectedOutput": "company\nmedian_salary\nA\n200\nB\n450",
+    "sqlSolution": "WITH ranked AS (\n    SELECT *,\n           ROW_NUMBER() OVER (\n               PARTITION BY company\n               ORDER BY salary\n           ) AS rn,\n           COUNT(*) OVER (\n               PARTITION BY company\n           ) AS cnt\n    FROM Employee\n)\nSELECT\n    company,\n    AVG(salary) AS median_salary\nFROM ranked\nWHERE rn IN (\n    FLOOR((cnt + 1)/2),\n    FLOOR((cnt + 2)/2)\n)\nGROUP BY company;",
+    "pySparkSolution": "from pyspark.sql.window import Window\nfrom pyspark.sql.functions import row_number, count, avg, col\n\nwindow_spec = Window.partitionBy(\"company\").orderBy(\"salary\")\n\ndf = employee_df.withColumn(\"rn\", row_number().over(window_spec)).withColumn(\"cnt\", count(\"*\").over(Window.partitionBy(\"company\")))\n\nresult = df.filter((col(\"rn\") == ((col(\"cnt\")+1)/2)) | (col(\"rn\") == ((col(\"cnt\")+2)/2))).groupBy(\"company\").agg(avg(\"salary\").alias(\"median_salary\"))\nStatistical calculations\nPercentile-like logic\nAggregation pipelines\nEnd of Part 1 (Day 41–45)",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 46,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "Students and Examinations",
+    "problemNumber": 1280,
+    "question": "Find number of exams attended by each student for every subject.",
+    "explanation": "Uses CROSS JOIN to generate all possible student-subject combinations, then LEFT JOIN for counts.\n\nIn DE, this is common for completeness checks and generating dimensional combinations.",
+    "expectedOutput": "student_id\nstudent_name\nsubject_name\nattended_exams\n1\nAlice\nMath\n2\n1\nAlice\nScience\n0\n2\nBob\nMath\n0\n2\nBob\nScience\n1",
+    "sqlSolution": "SELECT\n    s.student_id,\n    s.student_name,\n    sub.subject_name,\n    COUNT(e.student_id) AS attended_exams\nFROM Students s\nCROSS JOIN Subjects sub\nLEFT JOIN Examinations e\n    ON s.student_id = e.student_id\n   AND sub.subject_name = e.subject_name\nGROUP BY\n    s.student_id,\n    s.student_name,\n    sub.subject_name\nORDER BY s.student_id, sub.subject_name;",
+    "pySparkSolution": "result = students_df.crossJoin(subjects_df).join(examinations_df,[\"student_id\",\"subject_name\"],\"left\").groupBy(\"student_id\",\"student_name\",\"subject_name\").count().withColumnRenamed(\"count\",\"attended_exams\")\nCompleteness checks\nDimensional modeling\nCartesian generation",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 47,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "Find Start and End Number of Continuous Ranges",
+    "problemNumber": 1285,
+    "question": "Find continuous number ranges.",
+    "explanation": "Uses ROW_NUMBER() grouping trick.\n\nUseful for gap detection and sequence compression.",
+    "expectedOutput": "start_id\nend_id\n1\n3\n7\n8\n10\n10",
+    "sqlSolution": "WITH cte AS (\n    SELECT\n        log_id,\n        log_id - ROW_NUMBER() OVER (\n            ORDER BY log_id\n        ) AS grp\n    FROM Logs\n)\nSELECT\n    MIN(log_id) AS start_id,\n    MAX(log_id) AS end_id\nFROM cte\nGROUP BY grp;",
+    "pySparkSolution": "from pyspark.sql.window import Window\nfrom pyspark.sql.functions import row_number, col, min, max\n\nwindow_spec = Window.orderBy(\"log_id\")\n\ndf = logs_df.withColumn(\"grp\",col(\"log_id\") - row_number().over(window_spec))\n\nresult = df.groupBy(\"grp\").agg(min(\"log_id\").alias(\"start_id\"),max(\"log_id\").alias(\"end_id\"))\nGap detection\nSequence grouping\nRange compression",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 48,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "Human Traffic of Stadium",
+    "problemNumber": 601,
+    "question": "Find rows where at least 3 consecutive ids have people >= 100.",
+    "explanation": "Uses self-join / consecutive row logic.\n\nVery useful for anomaly spikes and threshold-based monitoring.",
+    "expectedOutput": "id\nvisit_date\npeople\n2\n2024-01-02\n120\n3\n2024-01-03\n130\n4\n2024-01-04\n140",
+    "sqlSolution": "WITH filtered AS (\n    SELECT *\n    FROM Stadium\n    WHERE people >= 100\n),\ngrp_cte AS (\n    SELECT *,\n           id - ROW_NUMBER() OVER (\n               ORDER BY id\n           ) AS grp\n    FROM filtered\n)\nSELECT id, visit_date, people\nFROM grp_cte\nWHERE grp IN (\n    SELECT grp\n    FROM grp_cte\n    GROUP BY grp\n    HAVING COUNT(*) >= 3\n);",
+    "pySparkSolution": "from pyspark.sql.window import Window\nfrom pyspark.sql.functions import row_number, col\n\nfiltered = stadium_df.filter(\"people >= 100\")\n\nwindow_spec = Window.orderBy(\"id\")\n\ndf = filtered.withColumn(\"grp\",col(\"id\") - row_number().over(window_spec))\n\nvalid = df.groupBy(\"grp\").count().filter(\"count >= 3\").select(\"grp\")\n\nresult = df.join(valid, \"grp\")\nThreshold alerting\nSpike detection\nConsecutive pattern analysis",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 49,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "Investments in 2016",
+    "problemNumber": 585,
+    "question": "Find sum of investments for policyholders satisfying location/value rules.",
+    "explanation": "Uses multi-condition filtering with subqueries.\n\nUsed in geo-deduplication and conditional aggregation.",
+    "expectedOutput": "tiv_2016\n30",
+    "sqlSolution": "SELECT\n    ROUND(SUM(tiv_2016), 2) AS tiv_2016\nFROM Insurance\nWHERE tiv_2015 IN (\n    SELECT tiv_2015\n    FROM Insurance\n    GROUP BY tiv_2015\n    HAVING COUNT(*) > 1\n)\nAND (lat, lon) IN (\n    SELECT lat, lon\n    FROM Insurance\n    GROUP BY lat, lon\n    HAVING COUNT(*) = 1\n);",
+    "pySparkSolution": "dup_tiv = insurance_df.groupBy(\"tiv_2015\").count().filter(\"count > 1\")\n\nunique_loc = insurance_df.groupBy(\"lat\", \"lon\").count().filter(\"count = 1\")\n\nresult = insurance_df.join(dup_tiv, \"tiv_2015\").join(unique_loc, [\"lat\", \"lon\"]).groupBy().sum(\"tiv_2016\")\nGeo-deduplication\nConditional filtering\nBusiness-rule pipelines",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 50,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "Tree Node",
+    "problemNumber": 608,
+    "question": "Classify each node as Root, Inner, or Leaf.",
+    "explanation": "Uses CASE + subquery logic.\n\nUseful in hierarchy classification and recursive datasets.",
+    "expectedOutput": "id\ntype\n1\nRoot\n2\nInner\n3\nLeaf\n4\nLeaf",
+    "sqlSolution": "SELECT\n    id,\n    CASE\n        WHEN p_id IS NULL THEN 'Root'\n        WHEN id IN (\n            SELECT DISTINCT p_id\n            FROM Tree\n            WHERE p_id IS NOT NULL\n        ) THEN 'Inner'\n        ELSE 'Leaf'\n    END AS type\nFROM Tree;",
+    "pySparkSolution": "from pyspark.sql.functions import when, col\n\nparents = tree_df.select(\"p_id\").distinct().filter(\"p_id IS NOT NULL\")\n\nresult = tree_df.join(parents, tree_df.id == parents.p_id, \"left\").select(tree_df.id, when(tree_df.p_id.isNull(), \"Root\").when(parents.p_id.isNotNull(), \"Inner\").otherwise(\"Leaf\").alias(\"type\"))\nHierarchy parsing\nTree classification\nRecursive data preparation\nEnd of Part 2 (Day 46–50)",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 51,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "Exchange Seats",
+    "problemNumber": 626,
+    "question": "Swap seat ids of every two consecutive students. If the number of students is odd, the last student remains unchanged.",
+    "explanation": "Uses CASE expressions with conditional swapping logic.\n\nUseful in DE when reassigning sequence-based records or transforming ordered datasets.",
+    "expectedOutput": "id\nstudent\n1\nBob\n2\nAlice\n3\nDavid\n4\nCharlie\n5\nEva",
+    "sqlSolution": "SELECT\n    CASE\n        WHEN id % 2 = 1\n             AND id != (\n                 SELECT MAX(id)\n                 FROM Seat\n             )\n        THEN id + 1\n        WHEN id % 2 = 0\n        THEN id - 1\n        ELSE id\n    END AS id,\n    student\nFROM Seat\nORDER BY id;",
+    "pySparkSolution": "from pyspark.sql.functions import when, max, col\n\nmax_id = seat_df.agg(max(\"id\")).collect()[0][0]\n\nresult = seat_df.withColumn(\"new_id\",when((col(\"id\") % 2 == 1) & (col(\"id\") != max_id),col(\"id\") + 1).when(col(\"id\") % 2 == 0,col(\"id\") - 1).otherwise(col(\"id\"))).select(col(\"new_id\").alias(\"id\"),\"student\").orderBy(\"id\")\nOrdered transformations\nRecord reassignment\nSequential processing",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 52,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "Customer Who Visited but Did Not Make Any Transactions",
+    "problemNumber": 1581,
+    "question": "Find customers who visited but did not make any transactions.",
+    "explanation": "Uses LEFT JOIN with NULL filtering (Anti-Join pattern).\n\nVery common in identifying missing relationships across datasets.",
+    "expectedOutput": "customer_id\ncount_no_trans\n23\n1\n30\n1",
+    "sqlSolution": "SELECT\n    customer_id,\n    COUNT(*) AS count_no_trans\nFROM Visits v\nLEFT JOIN Transactions t\nON v.visit_id=t.visit_id\nWHERE t.transaction_id IS NULL\nGROUP BY customer_id;",
+    "pySparkSolution": "from pyspark.sql.functions import col\n\nresult = visits_df.join(transactions_df,\"visit_id\",\"left\").filter(col(\"transaction_id\").isNull()).groupBy(\"customer_id\").count().withColumnRenamed(\"count\",\"count_no_trans\")\nAnti-joins\nMissing relationship detection\nData quality checks",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 53,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "The Winner University",
+    "problemNumber": 2010,
+    "question": "Find whether New York University or California University wins based on student scores.",
+    "explanation": "Uses conditional aggregation and ranking logic.\n\nUseful for business KPIs and multi-factor comparisons.",
+    "expectedOutput": "winner\nCalifornia University",
+    "sqlSolution": "WITH scores AS (\n    SELECT\n        'New York University' AS university,\n        AVG(score) AS avg_score\n    FROM NewYork\n\n    UNION ALL\n\n    SELECT\n        'California University',\n        AVG(score)\n    FROM California\n)\nSELECT university AS winner\nFROM scores\nORDER BY avg_score DESC\nLIMIT 1;",
+    "pySparkSolution": "from pyspark.sql.functions import lit, col\n\nny = newyork_df.groupBy().avg(\"score\").withColumn(\"university\",lit(\"New York University\"))\n\nca = california_df.groupBy().avg(\"score\").withColumn(\"university\",lit(\"California University\"))\n\nresult = ny.union(ca).orderBy(col(\"avg(score)\").desc()).limit(1)\nKPI comparison\nRanking logic\nBusiness metrics",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 54,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "NPV Queries",
+    "problemNumber": 1398,
+    "question": "Find NPV values for each query.",
+    "explanation": "Uses joins for operational lookups.\n\nUseful in financial and operational data pipelines.",
+    "expectedOutput": "id\nyear\nnpv\n1\n2018\n100\n7\n2019\n0",
+    "sqlSolution": "SELECT\n    q.id,\n    q.year,\n    COALESCE(n.npv,0) AS npv\nFROM Queries q\nLEFT JOIN NPV n\nON q.id=n.id\nAND q.year=n.year;",
+    "pySparkSolution": "result = queries_df.join(npv_df,[\"id\",\"year\"],\"left\").fillna({\"npv\":0})\nLookup enrichment\nFinancial pipelines\nMissing-value handling",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 55,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "Hopper Company Queries I",
+    "problemNumber": 1633,
+    "question": "Find average ride distance and duration for each month.",
+    "explanation": "Uses date aggregation and monthly metrics calculations.\n\nCommon in operational analytics pipelines.",
+    "expectedOutput": "month\navg_distance\navg_duration\n1\n12.5\n22.5\n2\n8\n16",
+    "sqlSolution": "SELECT\n    MONTH(request_date) AS month,\n    ROUND(AVG(ride_distance),2) AS avg_distance,\n    ROUND(AVG(ride_duration),2) AS avg_duration\nFROM Rides\nGROUP BY MONTH(request_date)\nORDER BY month;",
+    "pySparkSolution": "from pyspark.sql.functions import month, avg\n\nresult = rides_df.withColumn(\"month\",month(\"request_date\")).groupBy(\"month\").agg(avg(\"ride_distance\").alias(\"avg_distance\"),avg(\"ride_duration\").alias(\"avg_duration\"))\nTime-series aggregation\nOperational analytics\nMonthly reporting\nEnd of Part 3 (Day 51–55)",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 56,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "Hopper Company Queries II",
+    "problemNumber": 1645,
+    "question": "Find the average ride distance and average ride duration for active drivers each month.",
+    "explanation": "Uses multiple CTEs with monthly aggregation and business filtering logic.\n\nUseful in DE for building KPI dashboards and layered analytical pipelines.",
+    "expectedOutput": "month\navg_distance\navg_duration\n1\n10\n20\n2\n13.5\n21.5",
+    "sqlSolution": "WITH monthly_rides AS (\n    SELECT\n        MONTH(requested_at) AS month,\n        AVG(ride_distance) AS avg_distance,\n        AVG(ride_duration) AS avg_duration\n    FROM Rides\n    GROUP BY MONTH(requested_at)\n)\nSELECT\n    month,\n    ROUND(avg_distance,2) AS avg_distance,\n    ROUND(avg_duration,2) AS avg_duration\nFROM monthly_rides\nORDER BY month;",
+    "pySparkSolution": "from pyspark.sql.functions import month, avg\n\nresult = rides_df.withColumn(\"month\",month(\"requested_at\")).groupBy(\"month\").agg(avg(\"ride_distance\").alias(\"avg_distance\"),avg(\"ride_duration\").alias(\"avg_duration\")).orderBy(\"month\")\nLayered transformations\nKPI calculations\nMonthly metrics pipelines",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 57,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "Hopper Company Queries III",
+    "problemNumber": 1651,
+    "question": "Find the percentage of rides canceled by drivers and users each month.",
+    "explanation": "Uses multi-step aggregation with percentage calculations.\n\nUseful in DE for churn, cancellation, and cohort analysis.",
+    "expectedOutput": "month\ndriver_cancel_pct\nuser_cancel_pct\n1\n33.33\n33.33",
+    "sqlSolution": "SELECT\n    MONTH(requested_at) AS month,\n    ROUND(100 * SUM(CASE WHEN status='canceled_by_driver' THEN 1 ELSE 0 END) / COUNT(*),2) AS driver_cancel_pct,\n    ROUND(100 * SUM(CASE WHEN status='canceled_by_user' THEN 1 ELSE 0 END) / COUNT(*),2) AS user_cancel_pct\nFROM Rides\nGROUP BY MONTH(requested_at)\nORDER BY month;",
+    "pySparkSolution": "from pyspark.sql.functions import *\n\nresult = rides_df.withColumn(\"month\",month(\"requested_at\")).groupBy(\"month\").agg(round(100 * sum(when(col(\"status\") == \"canceled_by_driver\",1).otherwise(0)) / count(\"*\"),2).alias(\"driver_cancel_pct\"),round(100 * sum(when(col(\"status\") == \"canceled_by_user\",1).otherwise(0)) / count(\"*\"),2).alias(\"user_cancel_pct\"))\nCohort metrics\nCancellation analysis\nOperational reporting",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 58,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "All People Report to Given Manager",
+    "problemNumber": 1270,
+    "question": "Find all employees reporting directly or indirectly to a manager.",
+    "explanation": "Uses recursive hierarchy traversal.\n\nCommon in organizational data and graph-like datasets.",
+    "expectedOutput": "employee_id\n2\n3\n4",
+    "sqlSolution": "WITH RECURSIVE emp_hierarchy AS (\n    SELECT employee_id\n    FROM Employees\n    WHERE manager_id = 1\n    UNION ALL\n    SELECT e.employee_id\n    FROM Employees e\n    JOIN emp_hierarchy h\n    ON e.manager_id = h.employee_id\n)\nSELECT *\nFROM emp_hierarchy;",
+    "pySparkSolution": "from pyspark.sql.functions import col\n\ncurrent = employees_df.filter(col(\"manager_id\") == 1)\nresult = current\n\nwhile current.count() > 0:\n    current = employees_df.join(current, employees_df.manager_id == current.employee_id).select(employees_df.employee_id)\n    result = result.union(current)\nHierarchy traversal\nRecursive processing\nOrganizational analytics",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 59,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "Invalid Tweets",
+    "problemNumber": 1683,
+    "question": "Find tweets with content length greater than 15 characters.",
+    "explanation": "Uses string length validation.\n\nUseful for enforcing schema and quality constraints.",
+    "expectedOutput": "tweet_id\n3",
+    "sqlSolution": "SELECT\n    tweet_id\nFROM Tweets\nWHERE LENGTH(content) > 15;",
+    "pySparkSolution": "from pyspark.sql.functions import length\n\nresult = tweets_df.filter(length(\"content\") > 15).select(\"tweet_id\")\nData validation\nSchema checks\nQuality pipelines",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 60,
+    "topicNumber": 3,
+    "topicTitle": "Subqueries & CTEs",
+    "title": "Capital Gain/Loss",
+    "problemNumber": 1393,
+    "question": "Find capital gain or loss for each stock.",
+    "explanation": "Uses conditional aggregation with CASE statements.\n\nUseful in financial ETL and transaction analytics.",
+    "expectedOutput": "stock_name\ncapital_gain_loss\nAAPL\n50\nGOOG\n50",
+    "sqlSolution": "SELECT\n    stock_name,\n    SUM(CASE WHEN operation='Sell' THEN price ELSE -price END) AS capital_gain_loss\nFROM Stocks\nGROUP BY stock_name;",
+    "pySparkSolution": "from pyspark.sql.functions import *\n\nresult = stocks_df.groupBy(\"stock_name\").agg(sum(when(col(\"operation\") == \"Sell\",col(\"price\")).otherwise(-col(\"price\"))).alias(\"capital_gain_loss\"))\nFinancial calculations\nTransaction pipelines\nConditional aggregations\nEnd of Part 4 (Day 56–60)",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 61,
+    "topicNumber": 4,
+    "topicTitle": "String Functions & Patterns",
+    "title": "Fix Names in a Table",
+    "problemNumber": 1667,
+    "question": "Fix names so that only the first character is uppercase and the remaining characters are lowercase.",
+    "explanation": "Uses string manipulation functions like UPPER(), LOWER(), SUBSTRING(), and CONCAT().\n\nUseful in DE for standardizing text data before loading into data warehouses.",
+    "expectedOutput": "user_id\nname\n1\nAlice\n2\nBob\n3\nCharlie",
+    "sqlSolution": "SELECT\n    user_id,\n    CONCAT(\n        UPPER(SUBSTRING(name,1,1)),\n        LOWER(SUBSTRING(name,2))\n    ) AS name\nFROM Users\nORDER BY user_id;",
+    "pySparkSolution": "from pyspark.sql.functions import *\n\nresult = users_df.select(\n    \"user_id\",\n    concat(\n        upper(substring(\"name\",1,1)),\n        lower(substring(\"name\",2,100))\n    ).alias(\"name\")\n)\nData standardization\nName cleansing\nETL preprocessing",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 62,
+    "topicNumber": 4,
+    "topicTitle": "String Functions & Patterns",
+    "title": "Fix Product Name Format",
+    "problemNumber": 1543,
+    "question": "Normalize product names and aggregate by sale date.",
+    "explanation": "Uses TRIM(), LOWER(), and formatting functions.\n\nUseful for removing inconsistencies before analytics processing.",
+    "expectedOutput": "sale_date\nproduct_name\ntotal\n2024-01-01\nmouse\n2\n2024-02-01\nmouse\n1",
+    "sqlSolution": "SELECT\n    sale_date,\n    LOWER(\n        TRIM(product_name)\n    ) AS product_name,\n    COUNT(*) AS total\nFROM Sales\nGROUP BY\n    sale_date,\n    LOWER(TRIM(product_name))\nORDER BY\n    sale_date,\n    product_name;",
+    "pySparkSolution": "from pyspark.sql.functions import *\n\nresult = sales_df.withColumn(\n    \"product_name\",\n    lower(trim(\"product_name\"))\n).groupBy(\n    \"sale_date\",\n    \"product_name\"\n).count().withColumnRenamed(\n    \"count\",\n    \"total\"\n)\nString normalization\nData cleansing\nProduct standardization",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 63,
+    "topicNumber": 4,
+    "topicTitle": "String Functions & Patterns",
+    "title": "Patients With a Condition",
+    "problemNumber": 1527,
+    "question": "Find patients whose condition contains DIAB1.",
+    "explanation": "Uses LIKE pattern matching.\n\nUseful for identifying records based on text patterns and keyword searches.",
+    "expectedOutput": "patient_id\npatient_name\nconditions\n1\nAlice\nDIAB100\n3\nCharlie\nHEART DIAB100",
+    "sqlSolution": "SELECT *\nFROM Patients\nWHERE conditions LIKE 'DIAB1%'\nOR conditions LIKE '% DIAB1%';",
+    "pySparkSolution": "result = patients_df.filter(\n    (col(\"conditions\").like(\"DIAB1%\")) |\n    (col(\"conditions\").like(\"% DIAB1%\"))\n)\nPattern filtering\nMedical data parsing\nText search pipelines",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 64,
+    "topicNumber": 4,
+    "topicTitle": "String Functions & Patterns",
+    "title": "Find Users With Valid E-Mails",
+    "problemNumber": 1517,
+    "question": "Find users with valid email addresses.",
+    "explanation": "Uses REGEXP pattern matching.\n\nVery common in data validation and customer onboarding systems.",
+    "expectedOutput": "user_id\nemail\n1\nalice123@email.com\n3\nuser_01@email.com",
+    "sqlSolution": "SELECT *\nFROM Users\nWHERE email REGEXP\n'^[A-Za-z][A-Za-z0-9_.-]*@leetcode\\\\.com$';",
+    "pySparkSolution": "result = users_df.filter(\n    col(\"email\").rlike(\n        \"^[A-Za-z][A-Za-z0-9_.-]*@leetcode\\\\.com$\"\n    )\n)\nRegex validation\nCustomer data quality\nInput verification",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 65,
+    "topicNumber": 4,
+    "topicTitle": "String Functions & Patterns",
+    "title": "Recyclable and Low Fat Products",
+    "problemNumber": 1757,
+    "question": "Find products that are both recyclable and low fat.",
+    "explanation": "Uses multiple filtering conditions.\n\nUseful for attribute-based filtering in recommendation and catalog systems.",
+    "expectedOutput": "product_id\n1",
+    "sqlSolution": "SELECT\n    product_id\nFROM Products\nWHERE low_fats='Y'\nAND recyclable='Y';",
+    "pySparkSolution": "result = products_df.filter(\n    (col(\"low_fats\")==\"Y\") &\n    (col(\"recyclable\")==\"Y\")\n).select(\n    \"product_id\"\n)\nAttribute filtering\nData segmentation\nProduct categorization\nEnd of Part 1 (Day 61–65)",
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 66,
+    "topicNumber": 4,
+    "topicTitle": "String Functions & Patterns",
+    "title": "Invalid Tweets Check",
+    "problemNumber": 1683,
+    "question": "Find tweets that are invalid because their content exceeds 15 characters.",
+    "explanation": "Uses CHAR_LENGTH/LENGTH function for text validation.\n\nUseful in:\nSocial media ingestion\nData validation\nCharacter limit enforcement",
+    "expectedOutput": "tweet_id\n3",
+    "sqlSolution": "SELECT tweet_id\nFROM Tweets\nWHERE CHAR_LENGTH(content) > 15;",
+    "pySparkSolution": "from pyspark.sql.functions import length\n\nresult = tweets_df.filter(length(\"content\") > 15).select(\"tweet_id\")",
+    "dataEngineeringUseCases": [
+      "Data quality validation",
+      "Text ingestion pipelines",
+      "Character-based filtering"
+    ],
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 67,
+    "topicNumber": 4,
+    "topicTitle": "String Functions & Patterns",
+    "title": "Get Highest Answer Rate Question",
+    "question": "Find the question with the highest answer rate.",
+    "explanation": "Compute:\n- Total answers\n- Total shown\n- Answer rate = answers / shown\n\nReturn highest rate question.",
+    "expectedOutput": "question_id\n2",
+    "sqlSolution": "WITH rates AS (\n    SELECT\n        question_id,\n        SUM(CASE WHEN action = 'answer' THEN 1 ELSE 0 END) * 1.0 / SUM(CASE WHEN action = 'show' THEN 1 ELSE 0 END) AS rate\n    FROM SurveyLog\n    GROUP BY question_id\n)\nSELECT question_id\nFROM rates\nORDER BY rate DESC\nLIMIT 1;",
+    "pySparkSolution": "from pyspark.sql.functions import sum, when, col\n\nrates = survey_df.groupBy(\"question_id\").agg((sum(when(col(\"action\") == \"answer\", 1).otherwise(0)) / sum(when(col(\"action\") == \"show\", 1).otherwise(0))).alias(\"rate\"))\n\nresult = rates.orderBy(col(\"rate\").desc()).limit(1)",
+    "dataEngineeringUseCases": [
+      "Funnel analysis",
+      "Conversion metrics",
+      "User engagement analytics"
+    ],
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 68,
+    "topicNumber": 4,
+    "topicTitle": "String Functions & Patterns",
+    "title": "Friendly Movies Streamed Last Month",
+    "problemNumber": 1495,
+    "question": "Find kid-friendly movies streamed last month.",
+    "explanation": "Uses:\n- Date filtering\n- String/category filtering\n- JOINs",
+    "expectedOutput": "title\nFrozen",
+    "sqlSolution": "SELECT c.title\nFROM TVProgram t\nJOIN Content c\nON t.content_id = c.content_id\nWHERE c.Kids_content = 'Y'\nAND c.content_type = 'Movies'\nAND MONTH(t.program_date) = 1;",
+    "pySparkSolution": "from pyspark.sql.functions import month, col\n\nresult = tv_df.join(content_df,\"content_id\").filter((col(\"Kids_content\") == \"Y\") & (col(\"content_type\") == \"Movies\") & (month(\"program_date\") == 1)).select(\"title\")",
+    "dataEngineeringUseCases": [
+      "Content recommendation pipelines",
+      "Category filtering",
+      "Time-based analytics"
+    ],
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 69,
+    "topicNumber": 4,
+    "topicTitle": "String Functions & Patterns",
+    "title": "Bank Account Summary",
+    "question": "Generate account balance summary for each user.",
+    "explanation": "Aggregate transaction amounts by account.",
+    "expectedOutput": "account_id\nbalance\n1\n80\n2\n500",
+    "sqlSolution": "SELECT\n    account_id,\n    SUM(amount) AS balance\nFROM Transactions\nGROUP BY account_id;",
+    "pySparkSolution": "from pyspark.sql.functions import sum\n\nresult = transactions_df.groupBy(\"account_id\").agg(sum(\"amount\").alias(\"balance\"))",
+    "dataEngineeringUseCases": [
+      "Financial aggregation",
+      "Ledger pipelines",
+      "Balance calculations"
+    ],
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 70,
+    "topicNumber": 4,
+    "topicTitle": "String Functions & Patterns",
+    "title": "Bank Account Summary II",
+    "problemNumber": 1587,
+    "question": "Find users whose account balance exceeds 10000.",
+    "explanation": "Aggregate balances and filter high-value customers.",
+    "expectedOutput": "name\nbalance\nAlice\n11000",
+    "sqlSolution": "SELECT\n    u.name,\n    SUM(t.amount) AS balance\nFROM Users u\nJOIN Transactions t\nON u.account = t.account\nGROUP BY u.name\nHAVING SUM(t.amount) > 10000;",
+    "pySparkSolution": "from pyspark.sql.functions import sum, col\n\nresult = users_df.join(transactions_df,\"account\").groupBy(\"name\").agg(sum(\"amount\").alias(\"balance\")).filter(col(\"balance\") > 10000)",
+    "dataEngineeringUseCases": [
+      "High-value customer analytics",
+      "Financial reporting",
+      "Fraud/risk monitoring"
+    ],
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 71,
+    "topicNumber": 4,
+    "topicTitle": "String Functions & Patterns",
+    "title": "Calculate Salaries",
+    "question": "Calculate masked salary values based on conditions.",
+    "explanation": "Uses CASE expressions for masking/anonymization.",
+    "expectedOutput": "emp_id\nmasked_salary\n1\n1XXXX\n2\n2XXXX",
+    "sqlSolution": "SELECT\n    emp_id,\n    CONCAT(LEFT(salary, 1), 'XXXX') AS masked_salary\nFROM Salaries;",
+    "pySparkSolution": "from pyspark.sql.functions import concat, substring, lit\n\nresult = salary_df.withColumn(\"masked_salary\",concat(substring(\"salary\", 1, 1),lit(\"XXXX\")))",
+    "dataEngineeringUseCases": [
+      "PII masking",
+      "Data anonymization",
+      "Secure reporting"
+    ],
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 72,
+    "topicNumber": 4,
+    "topicTitle": "String Functions & Patterns",
+    "title": "Find Interview Candidates",
+    "question": "Find candidates matching interview requirements.",
+    "explanation": "Uses filtering and text-based conditions.",
+    "expectedOutput": "candidate_id\n1\n2",
+    "sqlSolution": "SELECT candidate_id\nFROM Candidates\nWHERE skill IN ('Python', 'SQL');",
+    "pySparkSolution": "result = candidates_df.filter(col(\"skill\").isin(\"Python\", \"SQL\")).select(\"candidate_id\")",
+    "dataEngineeringUseCases": [
+      "Candidate filtering",
+      "Skill matching",
+      "Metadata filtering"
+    ],
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 73,
+    "topicNumber": 4,
+    "topicTitle": "String Functions & Patterns",
+    "title": "Convert Date Format",
+    "question": "Convert date into standardized output format.",
+    "explanation": "Uses DATE formatting functions.",
+    "expectedOutput": "day\n15/01/2024",
+    "sqlSolution": "SELECT\n    DATE_FORMAT(day, '%d/%m/%Y') AS day\nFROM Days;",
+    "pySparkSolution": "from pyspark.sql.functions import date_format\n\nresult = days_df.select(date_format(\"day\",\"dd/MM/yyyy\").alias(\"day\"))",
+    "dataEngineeringUseCases": [
+      "Date standardization",
+      "Reporting pipelines",
+      "Format normalization"
+    ],
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 74,
+    "topicNumber": 4,
+    "topicTitle": "String Functions & Patterns",
+    "title": "Primary Department for Each Employee",
+    "problemNumber": 1789,
+    "question": "Find primary department for each employee.",
+    "explanation": "Uses ROW_NUMBER and flag prioritization.",
+    "expectedOutput": "employee_id\ndepartment_id\n1\n2\n2\n3",
+    "sqlSolution": "SELECT\n    employee_id,\n    department_id\nFROM Employee\nWHERE primary_flag = 'Y'\nOR employee_id IN (\n    SELECT employee_id\n    FROM Employee\n    GROUP BY employee_id\n    HAVING COUNT(*) = 1\n);",
+    "pySparkSolution": "single_emp = employee_df.groupBy(\"employee_id\").count().filter(col(\"count\") == 1)\n\nresult = employee_df.filter(col(\"primary_flag\") == \"Y\").union(employee_df.join(single_emp,\"employee_id\")).select(\"employee_id\",\"department_id\")",
+    "dataEngineeringUseCases": [
+      "Flag-based selection",
+      "Master record selection",
+      "Priority rules"
+    ],
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 75,
+    "topicNumber": 4,
+    "topicTitle": "String Functions & Patterns",
+    "title": "Product Worth Over Invoices",
+    "question": "Calculate total worth of products from invoices.",
+    "explanation": "Uses JOIN + aggregate calculations.",
+    "expectedOutput": "product_id\ntotal_worth\n1\n200\n2\n600",
+    "sqlSolution": "SELECT\n    p.product_id,\n    SUM(p.price * i.quantity) AS total_worth\nFROM Products p\nJOIN Invoices i\nON p.product_id = i.product_id\nGROUP BY p.product_id;",
+    "pySparkSolution": "from pyspark.sql.functions import sum, col\n\nresult = products_df.join(invoices_df,\"product_id\").withColumn(\"worth\",col(\"price\") * col(\"quantity\")).groupBy(\"product_id\").agg(sum(\"worth\").alias(\"total_worth\"))",
+    "dataEngineeringUseCases": [
+      "Revenue analytics",
+      "Invoice processing",
+      "Financial ETL calculations"
+    ],
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 76,
+    "topicNumber": 5,
+    "topicTitle": "Date & Time Operations",
+    "title": "Game Play Analysis V",
+    "problemNumber": 1532,
+    "question": "Calculate player retention based on consecutive login dates.",
+    "explanation": "Uses:\n- Date arithmetic\n- LEAD/LAG\n- Retention logic",
+    "expectedOutput": "fraction\n0.50",
+    "sqlSolution": "WITH first_login AS (\n    SELECT\n        player_id,\n        MIN(event_date) AS first_date\n    FROM Activity\n    GROUP BY player_id\n)\nSELECT\n    ROUND(COUNT(DISTINCT a.player_id) / (SELECT COUNT(DISTINCT player_id) FROM Activity),2) AS fraction\nFROM Activity a\nJOIN first_login f\nON a.player_id = f.player_id\nAND a.event_date = DATE_ADD(f.first_date, INTERVAL 1 DAY);",
+    "pySparkSolution": "from pyspark.sql.functions import min, date_add, countDistinct, col\n\nfirst_login = activity_df.groupBy(\"player_id\").agg(min(\"event_date\").alias(\"first_date\"))\n\nretained = activity_df.join(first_login,\"player_id\").filter(col(\"event_date\") == date_add(col(\"first_date\"), 1))\n\nresult = retained.agg((countDistinct(\"player_id\") / activity_df.select(\"player_id\").distinct().count()).alias(\"fraction\"))",
+    "dataEngineeringUseCases": [
+      "Retention analytics",
+      "Churn analysis",
+      "User lifecycle tracking"
+    ],
+    "sourceReferences": [
+      "210 Days SQLPyspark Interview Questions - Data Engineer Role.docx"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 77,
+    "topicNumber": 5,
+    "topicTitle": "Date & Time Operations",
+    "title": "User Activity for the Past 30 Days I",
+    "question": "Write an SQL query to find the daily active user count for a period of 30 days ending 2019-07-27 inclusively. \n\nRules: A user was active on a day if they made at least one activity on that day.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "ACTIVITY",
+        "rawContent": "user_id session_id activity_date activity_type 1 1 2019-07-20 open_session 1 1 2019-07-20 scroll_down 2 4 2019-07-21 send_message"
+      }
+    ],
+    "expectedOutput": "day\nactive_users\n2019-07-20\n1 2019-07-21\n1",
+    "sqlSolution": "SELECT activity_date AS day, COUNT(DISTINCT user_id) AS active_users FROM Activity WHERE activity_date BETWEEN '2019-06-28' AND '2019-07-27' GROUP BY activity_date;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day76_to_90_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 78,
+    "topicNumber": 5,
+    "topicTitle": "Date & Time Operations",
+    "title": "User Activity for the Past 30 Days II",
+    "question": "Write an SQL query to find the average number of sessions per user for a period of 30 days ending 2019-07-27. \n\nRules: Round to 2 decimal places.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "ACTIVITY",
+        "rawContent": "user_id session_id activity_date activity_type 1 1 2019-07-20 open_session 2 4 2019-07-21 send_message"
+      }
+    ],
+    "expectedOutput": "average_sessions_per_user\n1.0",
+    "sqlSolution": "SELECT IFNULL(ROUND(COUNT(DISTINCT session_id) / COUNT(DISTINCT user_id), 2), 0.00) AS average_sessions_per_user FROM Activity WHERE activity_date BETWEEN '2019-06-28' AND '2019-07-27';",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day76_to_90_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 79,
+    "topicNumber": 5,
+    "topicTitle": "Date & Time Operations",
+    "title": "New Users Daily Count",
+    "question": "Write an SQL query that reports for every date within at most 90 days from today (2019-06-30), the number of users that logged in for the first time on that date. \n\nRules: Ignore users who logged in before 90 days.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "TRAFFIC",
+        "rawContent": "user_id activity activity_date 1 login 2019-05-01 1 homepage 2019-05-01 2 login 2019-06-21"
+      }
+    ],
+    "expectedOutput": "login_date\nuser_count\n2019-05-01\n1 2019-06-21\n1",
+    "sqlSolution": "WITH FirstLogin AS ( SELECT user_id, MIN(activity_date) AS first_login FROM Traffic WHERE activity = 'login' GROUP BY user_id ) SELECT first_login AS login_date, COUNT(user_id) AS user_count FROM FirstLogin WHERE DATEDIFF('2019-06-30', first_login) <= 90 GROUP BY first_login;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day76_to_90_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 80,
+    "topicNumber": 5,
+    "topicTitle": "Date & Time Operations",
+    "title": "Unpopular Books",
+    "question": "Report the books that have sold less than 10 copies in the last year, excluding books that have been available for less than 1 month from today (2019-06-23). \n\nRules: Order result arbitrarily.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "BOOKS",
+        "rawContent": "book_id name available_from 1 Kalila 2010-01-01 2 28 Letters 2012-05-12 3 The Hobbit 2019-06-10"
+      },
+      {
+        "name": "ORDERS",
+        "rawContent": "order_id book_id quantity dispatch_date 1 1 2 2018-07-26 2 1 1 2018-11-05 3 2 8 2019-06-23"
+      }
+    ],
+    "expectedOutput": "book_id\nname\n1\nKalila",
+    "sqlSolution": "SELECT b.book_id, b.name FROM Books b LEFT JOIN Orders o ON b.book_id = o.book_id AND o.dispatch_date BETWEEN '2018-06-23' AND '2019-06-23' WHERE b.available_from < '2019-05-23' GROUP BY b.book_id, b.name HAVING SUM(IFNULL(o.quantity, 0)) < 10;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day76_to_90_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 81,
+    "topicNumber": 5,
+    "topicTitle": "Date & Time Operations",
+    "title": "Article Views I",
+    "question": "Find all the authors that viewed at least one of their own articles. \n\nRules: Return id sorted in ascending order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "VIEWS",
+        "rawContent": "article_id author_id viewer_id view_date 1 3 5 2019-08-01 1 3 6 2019-08-02 2 7 7 2019-08-01"
+      }
+    ],
+    "expectedOutput": "id\n7",
+    "sqlSolution": "SELECT DISTINCT author_id AS id FROM Views WHERE author_id = viewer_id ORDER BY id ASC;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day76_to_90_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 82,
+    "topicNumber": 5,
+    "topicTitle": "Date & Time Operations",
+    "title": "Article Views II",
+    "question": "Find all the people who viewed more than one article on the same date. \n\nRules: Return id sorted in ascending order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "VIEWS",
+        "rawContent": "article_id author_id viewer_id view_date 1 3 5 2019-08-01 3 4 5 2019-08-01 2 7 7 2019-08-02"
+      }
+    ],
+    "expectedOutput": "id\n5",
+    "sqlSolution": "SELECT DISTINCT viewer_id AS id FROM Views GROUP BY viewer_id, view_date HAVING COUNT(DISTINCT article_id) > 1 ORDER BY id ASC;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day76_to_90_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 83,
+    "topicNumber": 5,
+    "topicTitle": "Date & Time Operations",
+    "title": "Market Analysis I",
+    "question": "Find for each user, the join date and the number of orders they made as a buyer in 2019. \n\nRules: Return the result table in any order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "USERS",
+        "rawContent": "user_id join_date favorite_brand 1 2018-01-01 Lenovo 2 2018-02-09 Samsung"
+      },
+      {
+        "name": "ORDERS",
+        "rawContent": "order_id order_date item_id buyer_id seller_id 1 2019-08-01 4 1 2 2 2018-08-02 2 1 3"
+      }
+    ],
+    "expectedOutput": "buyer_id\njoin_date\norders_in_2019\n1\n2018-01-01\n1 2\n2018-02-09\n0",
+    "sqlSolution": "SELECT u.user_id AS buyer_id, u.join_date, COUNT(o.order_id) AS orders_in_2019 FROM Users u LEFT JOIN Orders o ON u.user_id = o.buyer_id AND YEAR(o.order_date) = 2019 GROUP BY u.user_id, u.join_date;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day76_to_90_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 84,
+    "topicNumber": 5,
+    "topicTitle": "Date & Time Operations",
+    "title": "Market Analysis II",
+    "question": "Find for each user whether the brand of the second item (by date) they sold is their favorite brand. \n\nRules: If user sold less than 2 items, report 'no'. Return seller_id and 2nd_item_fav_brand.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "USERS",
+        "rawContent": "user_id favorite_brand 1 Lenovo 2 Samsung"
+      },
+      {
+        "name": "ITEMS",
+        "rawContent": "item_id item_brand 1 Samsung 2 Lenovo"
+      },
+      {
+        "name": "ORDERS",
+        "rawContent": "order_id order_date item_id buyer_id seller_id 1 2019-08-01 1 1 2 2 2019-08-02 2 1 2"
+      }
+    ],
+    "expectedOutput": "seller_id\n2nd_item_fav_brand\n1\nno 2\nyes",
+    "sqlSolution": "WITH RankedOrders AS ( SELECT seller_id, item_id, ROW_NUMBER() OVER(PARTITION BY seller_id ORDER BY order_date ASC) as rn FROM Orders ) SELECT u.user_id AS seller_id, CASE WHEN i.item_brand = u.favorite_brand THEN 'yes' ELSE 'no' END AS 2nd_item_fav_brand FROM Users u LEFT JOIN RankedOrders r ON u.user_id = r.seller_id AND r.rn = 2 LEFT JOIN Items i ON r.item_id = i.item_id;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day76_to_90_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 85,
+    "topicNumber": 5,
+    "topicTitle": "Date & Time Operations",
+    "title": "Product Price at a Given Date",
+    "question": "Write an SQL query to find the prices of all products on 2019-08-16. Default price before any change is 10.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "PRODUCTS",
+        "rawContent": "product_id new_price change_date 1 20 2019-08-14 2 50 2019-08-14 1 35 2019-08-16"
+      }
+    ],
+    "expectedOutput": "product_id\nprice\n1\n35 2\n50",
+    "sqlSolution": "SELECT product_id, new_price AS price FROM Products WHERE (product_id, change_date) IN (SELECT product_id, MAX(change_date) FROM Products WHERE change_date <= '2019-08-16' GROUP BY product_id) UNION SELECT DISTINCT product_id, 10 AS price FROM Products WHERE product_id NOT IN (SELECT product_id FROM Products WHERE change_date <= '2019-08-16');",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day76_to_90_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 86,
+    "topicNumber": 5,
+    "topicTitle": "Date & Time Operations",
+    "title": "Monthly Transactions I",
+    "question": "Find for each month and country, the number of transactions, total amount, the number of approved transactions and their total amount. \n\nRules: Return the result table in any order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "TRANSACTIONS",
+        "rawContent": "id country state amount trans_date 1 US approved 1000 2018-12-18 2 US declined 2000 2018-12-19 3 US approved 2000 2019-01-01"
+      }
+    ],
+    "expectedOutput": "month\ncountry\ntrans_count\napproved_count\ntrans_total_amount\napproved_total_amount\n2018-12\nUS\n2\n1\n3000\n1000 2019-01\nUS\n1\n1\n2000\n2000",
+    "sqlSolution": "SELECT DATE_FORMAT(trans_date, '%Y-%m') AS month, country, COUNT(id) AS trans_count, SUM(CASE WHEN state = 'approved' THEN 1 ELSE 0 END) AS approved_count, SUM(amount) AS trans_total_amount, SUM(CASE WHEN state = 'approved' THEN amount ELSE 0 END) AS approved_total_amount FROM Transactions GROUP BY month, country;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day76_to_90_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 87,
+    "topicNumber": 5,
+    "topicTitle": "Date & Time Operations",
+    "title": "Monthly Transactions II",
+    "question": "Find for each month and country: the number of approved transactions and their total amount, the number of chargebacks and their total amount. \n\nRules: Ignore months/countries with no data.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "TRANSACTIONS",
+        "rawContent": "id country state amount trans_date 101 US approved 1000 2019-05-18 102 US declined 2000 2019-05-19"
+      },
+      {
+        "name": "CHARGEBACKS",
+        "rawContent": "trans_id trans_date 101 2019-06-05"
+      }
+    ],
+    "expectedOutput": "month\ncountry\napproved_count\napproved_amount\nchargeback_count\nchargeback_amount\n2019-05\nUS\n1\n1000\n0\n0 2019-06\nUS\n0\n0\n1\n1000",
+    "sqlSolution": "WITH AllTrans AS ( SELECT DATE_FORMAT(trans_date, '%Y-%m') AS month, country, 1 AS approved_count, amount AS approved_amount, 0 AS chargeback_count, 0 AS chargeback_amount FROM Transactions WHERE state = 'approved' UNION ALL SELECT DATE_FORMAT(c.trans_date, '%Y-%m') AS month, t.country, 0 AS approved_count, 0 AS approved_amount, 1 AS chargeback_count, t.amount AS chargeback_amount FROM Chargebacks c JOIN Transactions t ON c.trans_id = t.id ) SELECT month, country, SUM(approved_count) AS approved_count, SUM(approved_amount) AS approved_amount, SUM(chargeback_count) AS chargeback_count, SUM(chargeback_amount) AS chargeback_amount FROM AllTrans GROUP BY month, country;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day76_to_90_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 88,
+    "topicNumber": 5,
+    "topicTitle": "Date & Time Operations",
+    "title": "Maximum Transaction Each Day",
+    "question": "Write an SQL query to report the IDs of the transactions with the maximum amount on their respective day. \n\nRules: If there are multiple such transactions, return all of them. Order by transaction_id.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "TRANSACTIONS",
+        "rawContent": "transaction_id day amount 8 2021-04-03 57 9 2021-04-03 57 10 2021-04-04 50"
+      }
+    ],
+    "expectedOutput": "transaction_id\n8 9 10",
+    "sqlSolution": "SELECT transaction_id FROM Transactions WHERE (day, amount) IN ( SELECT day, MAX(amount) FROM Transactions GROUP BY day ) ORDER BY transaction_id;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day76_to_90_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 89,
+    "topicNumber": 5,
+    "topicTitle": "Date & Time Operations",
+    "title": "Tournament Winners",
+    "question": "Find the winner in each group. Winner is player who scored max total points. In tie, lower player_id wins. \n\nRules: Return group_id and player_id.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "PLAYERS",
+        "rawContent": "player_id group_id 15 1 25 1 30 1 45 2"
+      },
+      {
+        "name": "MATCHES",
+        "rawContent": "match_id first_player second_player first_score second_score 1 15 45 3 0 2 30 25 1 2"
+      }
+    ],
+    "expectedOutput": "group_id\nplayer_id\n1\n15 2\n45",
+    "sqlSolution": "WITH Scores AS ( SELECT first_player AS player, first_score AS score FROM Matches UNION ALL SELECT second_player AS player, second_score AS score FROM Matches ), Ranked AS ( SELECT p.group_id, p.player_id, SUM(s.score) as total_score, ROW_NUMBER() OVER(PARTITION BY p.group_id ORDER BY SUM(s.score) DESC, p.player_id ASC) as rn FROM Players p LEFT JOIN Scores s ON p.player_id = s.player GROUP BY p.group_id, p.player_id ) SELECT group_id, player_id FROM Ranked WHERE rn = 1;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day76_to_90_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 90,
+    "topicNumber": 5,
+    "topicTitle": "Date & Time Operations",
+    "title": "The Latest Login in 2020",
+    "question": "Write an SQL query to report the latest login for all users in the year 2020. \n\nRules: Do not include users who did not login in 2020.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "LOGINS",
+        "rawContent": "user_id time_stamp 6 2020-06-30 6 2021-01-01 8 2020-02-01 8 2020-12-30"
+      }
+    ],
+    "expectedOutput": "user_id\nlast_stamp\n6\n2020-06-30 8\n2020-12-30",
+    "sqlSolution": "SELECT user_id, MAX(time_stamp) AS last_stamp FROM Logins WHERE YEAR(time_stamp) = 2020 GROUP BY user_id;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day76_to_90_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 91,
+    "topicNumber": 6,
+    "topicTitle": "Conditional Logic & CASE",
+    "title": "Swap Sex of Employees",
+    "question": "Write an SQL query to swap all 'f' and 'm' values with a single update statement and no intermediate temp tables. \n\nRules: Must use an UPDATE statement.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "SALARY",
+        "rawContent": "id name sex salary 1 A m 2500 2 B f 1500 3 C m 5500 4 D f 500"
+      }
+    ],
+    "expectedOutput": "id\nname\nsex\nsalary\n1\nA\nf\n2500 2\nB\nm\n1500",
+    "sqlSolution": "UPDATE Salary SET sex = CASE WHEN sex = 'm' THEN 'f' ELSE 'm' END;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day91_to_105_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 92,
+    "topicNumber": 6,
+    "topicTitle": "Conditional Logic & CASE",
+    "title": "Triangle Judgement",
+    "question": "Report for every three line segments whether they can form a triangle. \n\nRules: Return x, y, z and triangle (Yes/No).",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "TRIANGLE",
+        "rawContent": "x y z 13 15 30 10 20 15"
+      }
+    ],
+    "expectedOutput": "x\ny\nz\ntriangle\n13\n15\n30\nNo 10\n20\n15\nYes",
+    "sqlSolution": "SELECT x, y, z, CASE WHEN x + y > z AND x + z > y AND y + z > x THEN 'Yes' ELSE 'No' END AS triangle FROM Triangle;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day91_to_105_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 93,
+    "topicNumber": 6,
+    "topicTitle": "Conditional Logic & CASE",
+    "title": "Arrange Table by Gender",
+    "question": "Write an SQL query to rearrange the table such that the rows alternate in the order female, other, male. \n\nRules: Maintain relative order by user_id within each gender.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "GENDERS",
+        "rawContent": "user_id gender 4 male 7 female 2 other 5 male 3 female 8 male"
+      }
+    ],
+    "expectedOutput": "user_id\ngender\n7\nfemale 2\nother 4\nmale",
+    "sqlSolution": "WITH Ranked AS ( SELECT user_id, gender, ROW_NUMBER() OVER(PARTITION BY gender ORDER BY user_id) as rn FROM Genders ) SELECT user_id, gender FROM Ranked ORDER BY rn, CASE gender WHEN 'female' THEN 1 WHEN 'other' THEN 2 ELSE 3 END;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day91_to_105_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 94,
+    "topicNumber": 6,
+    "topicTitle": "Conditional Logic & CASE",
+    "title": "Count Salary Categories",
+    "question": "Calculate the number of bank accounts of each salary category. \n\nRules: Low Salary: < $20,000 Average Salary: $20,000 to $50,000 inclusive High Salary: > $50,000. Include all categories even if 0.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "ACCOUNTS",
+        "rawContent": "account_id income 3 108939 2 12747 8 87709 6 91796"
+      }
+    ],
+    "expectedOutput": "category\naccounts_count\nLow\nSalary\n1 Average\nSalary\n0 High Salary\n3",
+    "sqlSolution": "SELECT 'Low Salary' AS category, SUM(CASE WHEN income < 20000 THEN 1 ELSE 0 END) AS accounts_count FROM Accounts UNION SELECT 'Average Salary', SUM(CASE WHEN income BETWEEN 20000 AND 50000 THEN 1 ELSE 0 END) FROM Accounts UNION SELECT 'High Salary', SUM(CASE WHEN income > 50000 THEN 1 ELSE 0 END) FROM Accounts;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day91_to_105_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 95,
+    "topicNumber": 6,
+    "topicTitle": "Conditional Logic & CASE",
+    "title": "Calculate Special Bonus",
+    "question": "Calculate the bonus of each employee. The bonus is 100% of their salary if the ID is an odd number and the employee's name does not start with 'M'. \n\nRules: Otherwise, the bonus is 0. Order by employee_id.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "EMPLOYEES",
+        "rawContent": "employee_id name salary 2 Meir 3000 3 Michael 3800 7 Addilyn 7400 8 Juan 6100 9 Kannon 7700"
+      }
+    ],
+    "expectedOutput": "employee_id\nbonus\n2\n0 3\n0 7\n7400",
+    "sqlSolution": "SELECT employee_id, CASE WHEN employee_id % 2 = 1 AND name NOT LIKE 'M%' THEN salary ELSE\n0 END AS bonus FROM Employees ORDER BY employee_id;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day91_to_105_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 96,
+    "topicNumber": 6,
+    "topicTitle": "Conditional Logic & CASE",
+    "title": "Sales by Day of the Week",
+    "question": "Report how many units in each category have been ordered on each day of the week. \n\nRules: Return Category, Monday, Tuesday... Sunday. Order by Category.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "ORDERS",
+        "rawContent": "order_id customer_id order_date item_id quantity 1 1 2020-06-01 1 10 2 1 2020-06-08 2 10 3 2 2020-06-02 1 5"
+      },
+      {
+        "name": "ITEMS",
+        "rawContent": "item_id item_name item_category 1 LC Algo 1 Book 2 LC Algo 2 Book"
+      }
+    ],
+    "expectedOutput": "Category\nMonday\nTuesday\nWednesday\nThursday\nFriday\nSaturday\nSunday\nBook\n20\n5\n0\n0\n0\n0\n0",
+    "sqlSolution": "SELECT i.item_category AS Category, SUM(CASE WHEN DAYOFWEEK(o.order_date) = 2 THEN o.quantity ELSE 0 END) AS Monday, SUM(CASE WHEN DAYOFWEEK(o.order_date) = 3 THEN o.quantity ELSE 0 END) AS Tuesday, SUM(CASE WHEN DAYOFWEEK(o.order_date) = 4 THEN o.quantity ELSE 0 END) AS Wednesday, SUM(CASE WHEN DAYOFWEEK(o.order_date) = 5 THEN o.quantity ELSE 0 END) AS Thursday, SUM(CASE WHEN DAYOFWEEK(o.order_date) = 6 THEN o.quantity ELSE 0 END) AS Friday, SUM(CASE WHEN DAYOFWEEK(o.order_date) = 7 THEN o.quantity ELSE 0 END) AS Saturday, SUM(CASE WHEN DAYOFWEEK(o.order_date) = 1 THEN o.quantity ELSE 0 END) AS Sunday FROM Items i LEFT JOIN Orders o ON i.item_id = o.item_id GROUP BY i.item_category ORDER BY Category;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day91_to_105_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 97,
+    "topicNumber": 6,
+    "topicTitle": "Conditional Logic & CASE",
+    "title": "Order Two Columns Independently",
+    "question": "Write a query to independently order first_col in ascending order and second_col in descending order. \n\nRules: Return the result table.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "DATA",
+        "rawContent": "first_col second_col 4 2 1 5 6 1 3 4"
+      }
+    ],
+    "expectedOutput": "first_col\nsecond_col\n1\n5 3\n4 4\n2 6\n1",
+    "sqlSolution": "WITH Col1 AS (SELECT first_col, ROW_NUMBER() OVER(ORDER BY first_col ASC) as rn FROM Data), Col2 AS (SELECT second_col, ROW_NUMBER() OVER(ORDER BY second_col DESC) as rn FROM Data) SELECT c1.first_col, c2.second_col FROM Col1 c1 JOIN Col2 c2 ON c1.rn = c2.rn;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day91_to_105_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 98,
+    "topicNumber": 6,
+    "topicTitle": "Conditional Logic & CASE",
+    "title": "Patients With Condition",
+    "question": "Find patients who have Type I Diabetes (DIAB1 prefix). \n\nRules: Return patient_id, patient_name, conditions.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "PATIENTS",
+        "rawContent": "patient_id patient_name conditions 1 Daniel YFEV COUGH 2 Alice 3 Bob DIAB100 MYOP"
+      }
+    ],
+    "expectedOutput": "patient_id\npatient_name\nconditions\n3\nBob\nDIAB100\nMYOP",
+    "sqlSolution": "SELECT patient_id, patient_name, conditions FROM Patients WHERE conditions LIKE 'DIAB1%' OR conditions LIKE '% DIAB1%';",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day91_to_105_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 99,
+    "topicNumber": 6,
+    "topicTitle": "Conditional Logic & CASE",
+    "title": "Group Employees Same Salary",
+    "question": "Write a query to get the employee_id, name, salary, and a dense_rank of employees who share the same salary. \n\nRules: Only include salaries shared by >= 2 employees. Order by team_id (the rank), then employee_id.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "EMPLOYEES",
+        "rawContent": "employee_id name salary 2 Meir 3000 3 Michael 3000 7 Addilyn 7400 8 Juan 6100 9 Kannon 7700 1 Bob 7400"
+      }
+    ],
+    "expectedOutput": "employee_id\nname\nsalary\nteam_id\n2\nMeir\n3000\n1 3\nMichael\n3000\n1 1\nBob\n7400\n2 7\nAddilyn\n7400\n2",
+    "sqlSolution": "WITH Counts AS (SELECT salary FROM Employees GROUP BY salary HAVING COUNT(*) >= 2), Teams AS (SELECT salary, DENSE_RANK() OVER(ORDER BY salary) as team_id FROM Counts) SELECT e.employee_id, e.name, e.salary, t.team_id FROM Employees e JOIN Teams t ON e.salary = t.salary ORDER BY t.team_id, e.employee_id;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day91_to_105_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 100,
+    "topicNumber": 6,
+    "topicTitle": "Conditional Logic & CASE",
+    "title": "Queries Quality and Percentage",
+    "question": "Find each query_name, the quality and poor_query_percentage. \n\nRules: Quality = avg of rating / position. Poor % = % of queries with rating < 3. Round to 2 decimals.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "QUERIES",
+        "rawContent": "query_name result position rating Dog Golden 1 5 Dog German 2 5 Dog Mule 200 1 Cat Shirazi 5 2 Cat Siamese 3 3 Cat Sphynx 7 4"
+      }
+    ],
+    "expectedOutput": "query_name\nquality\npoor_query_percentage\nDog\n2.5\n33.33 Cat\n0.66\n33.33",
+    "sqlSolution": "SELECT query_name, ROUND(AVG(rating / position), 2) AS quality, ROUND(AVG(CASE WHEN rating < 3 THEN 1.0 ELSE 0.0 END) * 100, 2) AS poor_query_percentage FROM Queries GROUP BY query_name;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day91_to_105_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 101,
+    "topicNumber": 6,
+    "topicTitle": "Conditional Logic & CASE",
+    "title": "Evaluate Boolean Expression",
+    "question": "Evaluate the boolean expressions. \n\nRules: Return left_operand, operator, right_operand, and value ('true' or 'false').",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "VARIABLES",
+        "rawContent": "name value x 66 y 77"
+      },
+      {
+        "name": "EXPRESSIONS",
+        "rawContent": "left_operand operator right_operand x > y x < y x = y"
+      }
+    ],
+    "expectedOutput": "left_operand\noperator\nright_operand\nvalue\nx\n>\ny\nfalse x\n<\ny\ntrue x\n=\ny\nfalse",
+    "sqlSolution": "SELECT e.left_operand, e.operator, e.right_operand, CASE WHEN e.operator = '>' AND v1.value > v2.value THEN 'true' WHEN e.operator = '<' AND v1.value < v2.value THEN 'true' WHEN e.operator = '=' AND v1.value = v2.value THEN 'true' ELSE 'false' END AS value FROM Expressions e JOIN Variables v1 ON e.left_operand = v1.name JOIN Variables v2 ON e.right_operand = v2.name;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day91_to_105_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 102,
+    "topicNumber": 6,
+    "topicTitle": "Conditional Logic & CASE",
+    "title": "Apples & Oranges",
+    "question": "Write an SQL query to report the difference between the number of apples and oranges sold each day. \n\nRules: Return the result table ordered by sale_date.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "SALES",
+        "rawContent": "sale_date fruit sold_num 2020-05-01 apples 10 2020-05-01 oranges 8 2020-05-02 apples 15 2020-05-02 oranges 15"
+      }
+    ],
+    "expectedOutput": "sale_date\ndiff\n2020-05-01\n2 2020-05-02\n0",
+    "sqlSolution": "SELECT sale_date, SUM(CASE WHEN fruit = 'apples' THEN sold_num ELSE -sold_num END) AS diff FROM Sales GROUP BY sale_date ORDER BY sale_date;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day91_to_105_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 103,
+    "topicNumber": 6,
+    "topicTitle": "Conditional Logic & CASE",
+    "title": "Leetflex Banned Accounts",
+    "question": "Find the account_id of the accounts that should be banned. \n\nRules: An account is banned if it logged in from two different IP addresses at the same time.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "LOGINFO",
+        "rawContent": "account_id ip_address login logout 1 1 2021-02-01 09:00:00 2021-02-01 09:30:00 1 2 2021-02-01 08:00:00 2021-02-01 11:30:00 2 6 2021-02-01 20:30:00 2021-02-01 22:00:00"
+      }
+    ],
+    "expectedOutput": "account_id\n1",
+    "sqlSolution": "SELECT DISTINCT l1.account_id FROM LogInfo l1 JOIN LogInfo l2 ON l1.account_id = l2.account_id AND l1.ip_address != l2.ip_address WHERE l1.login BETWEEN l2.login AND l2.logout;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day91_to_105_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 104,
+    "topicNumber": 6,
+    "topicTitle": "Conditional Logic & CASE",
+    "title": "Team Scores Football Tournament",
+    "question": "Calculate the points of each team. Points: 3 for win, 1 for draw, 0 for loss. \n\nRules: Order by num_points DESC, team_id ASC.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "TEAMS",
+        "rawContent": "team_id team_name 10 Leetcode FC 20 NewYork FC 30 Atlanta FC 40 Chicago FC 50 Toronto FC"
+      },
+      {
+        "name": "MATCHES",
+        "rawContent": "match_id host_team guest_team host_goals guest_goals 1 10 20 3 0 2 30 10 2 2 3 10 50 5 1 4 20 30 1 0 5 50 30 1 0"
+      }
+    ],
+    "expectedOutput": "team_id\nteam_name\nnum_points\n10\nLeetcode FC\n7 20\nNewYork FC\n3 50\nToronto FC\n3 30\nAtlanta FC\n1 40\nChicago FC\n0",
+    "sqlSolution": "SELECT t.team_id, t.team_name, SUM(CASE WHEN t.team_id = m.host_team AND m.host_goals > m.guest_goals THEN 3 WHEN t.team_id = m.guest_team AND m.guest_goals > m.host_goals THEN 3 WHEN m.host_goals = m.guest_goals THEN 1 ELSE 0 END) AS num_points FROM Teams t LEFT JOIN Matches m ON t.team_id = m.host_team OR t.team_id = m.guest_team GROUP BY t.team_id, t.team_name ORDER BY num_points DESC, team_id ASC;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day91_to_105_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 105,
+    "topicNumber": 6,
+    "topicTitle": "Conditional Logic & CASE",
+    "title": "Biggest Single Number",
+    "question": "A single number is a number that appeared only once in the table. Find the largest single number. \n\nRules: If there is no single number, return null.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "MYNUMBERS",
+        "rawContent": "num 8 8 3 3 1 4 5 6"
+      }
+    ],
+    "expectedOutput": "num\n6",
+    "sqlSolution": "SELECT MAX(num) AS num FROM ( SELECT num FROM MyNumbers GROUP BY num HAVING COUNT(num) = 1 ) t;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day91_to_105_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 106,
+    "topicNumber": 7,
+    "topicTitle": "Set Operations",
+    "title": "Find Missing IDs",
+    "question": "Find the missing customer IDs. The missing IDs are ones that are not in the table but are strictly between 1 and the max customer_id. \n\nRules: Return the result table ordered by ids in ascending order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "CUSTOMERS",
+        "rawContent": "customer_id customer_name 1 Alice 4 Bob 5 Charlie"
+      }
+    ],
+    "expectedOutput": "ids\n2 3",
+    "sqlSolution": "WITH RECURSIVE Seq AS ( SELECT 1 AS id UNION ALL SELECT id + 1 FROM Seq WHERE id < (SELECT MAX(customer_id) FROM Customers) ) SELECT id AS ids FROM Seq WHERE id NOT IN (SELECT customer_id FROM Customers);",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day106_to_115_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 107,
+    "topicNumber": 7,
+    "topicTitle": "Set Operations",
+    "title": "All Valid Triplets That Can Represent a Country",
+    "question": "Find all valid triplets (member_A, member_B, member_C) representing student_name from each school. \n\nRules: A valid triplet has completely different names. Return the result table in any order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "SCHOOLA",
+        "rawContent": "student_id student_name 1 Alice 2 Bob"
+      },
+      {
+        "name": "SCHOOLB",
+        "rawContent": "student_id student_name 3 Tom"
+      },
+      {
+        "name": "SCHOOLC",
+        "rawContent": "student_id student_name 3 Jerry 4 Alice"
+      }
+    ],
+    "expectedOutput": "member_A\nmember_B\nmember_C\nAlice\nTom\nJerry Bob\nTom\nAlice",
+    "sqlSolution": "SELECT a.student_name AS member_A, b.student_name AS member_B, c.student_name AS member_C FROM SchoolA a CROSS JOIN SchoolB b CROSS JOIN SchoolC c WHERE a.student_name != b.student_name AND b.student_name != c.student_name AND a.student_name != c.student_name;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day106_to_115_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 108,
+    "topicNumber": 7,
+    "topicTitle": "Set Operations",
+    "title": "All Pairs With Maximum Common Followers",
+    "question": "Find all pairs of users with the maximum number of common followers. \n\nRules: user1_id < user2_id. Return the result table in any order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "RELATIONS",
+        "rawContent": "user_id follower_id 1 3 2 3 1 4 2 4 1 5 2 6 3 7"
+      }
+    ],
+    "expectedOutput": "user1_id\nuser2_id\n1\n2",
+    "sqlSolution": "WITH Common AS ( SELECT r1.user_id AS user1_id, r2.user_id AS user2_id, COUNT(r1.follower_id) AS cnt FROM Relations r1 JOIN Relations r2 ON r1.follower_id = r2.follower_id AND r1.user_id < r2.user_id GROUP BY r1.user_id, r2.user_id ) SELECT user1_id, user2_id FROM Common WHERE cnt = (SELECT MAX(cnt) FROM Common);",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day106_to_115_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 109,
+    "topicNumber": 7,
+    "topicTitle": "Set Operations",
+    "title": "Strong Friendships",
+    "question": "Find all the strong friendships. A friendship between user1_id and user2_id is strong if they have at least three common friends. \n\nRules: user1_id < user2_id. Return the result table in any order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "FRIENDSHIP",
+        "rawContent": "user1_id user2_id 1 2 1 3 2 3 1 4 2 4 1 5 2 5 1 7 3 7 1 6 3 6 2 6"
+      }
+    ],
+    "expectedOutput": "user1_id\nuser2_id\n1\n2 1\n3 2\n3",
+    "sqlSolution": "WITH AllFriends AS ( SELECT user1_id AS u, user2_id AS f FROM Friendship UNION SELECT user2_id AS u, user1_id AS f FROM Friendship ) SELECT f.user1_id, f.user2_id FROM Friendship f JOIN AllFriends a1 ON f.user1_id = a1.u JOIN AllFriends a2 ON f.user2_id = a2.u AND a1.f = a2.f GROUP BY f.user1_id, f.user2_id HAVING COUNT(a1.f) >= 3;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day106_to_115_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 110,
+    "topicNumber": 7,
+    "topicTitle": "Set Operations",
+    "title": "Employees Whose Manager Left the Company",
+    "question": "Find the IDs of the employees whose salary is strictly less than $30000 and whose manager left the company. \n\nRules: Manager left if their ID is missing from the table. Order by employee_id.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "EMPLOYEES",
+        "rawContent": "emp_id name manager_id salary 3 Mila 9 60301 12 Antonella null 31000 13 Emery null 67084 1 Kalel 11 21241 9 Mikaela null 50937 11 Joziah 6 28485"
+      }
+    ],
+    "expectedOutput": "employee_id\n11",
+    "sqlSolution": "SELECT emp_id AS employee_id FROM Employees WHERE salary < 30000 AND manager_id IS NOT NULL AND manager_id NOT IN (SELECT emp_id FROM Employees) ORDER BY emp_id;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day106_to_115_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 111,
+    "topicNumber": 7,
+    "topicTitle": "Set Operations",
+    "title": "Activity Participants",
+    "question": "Find the names of all the activities with neither the maximum nor the minimum number of participants. \n\nRules: Return the result table in any order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "FRIENDS",
+        "rawContent": "id name activity 1 Jonathan Eating 2 Jade Singing 3 Victor Singing 4 Elvis Eating 5 Daniel Eating 6 Bob Horse Riding"
+      },
+      {
+        "name": "ACTIVITIES",
+        "rawContent": "id name 1 Eating 2 Singing 3 Horse Riding"
+      }
+    ],
+    "expectedOutput": "activity\nSinging",
+    "sqlSolution": "WITH ActivityCounts AS ( SELECT activity, COUNT(*) AS cnt FROM Friends GROUP BY activity ) SELECT activity FROM ActivityCounts WHERE cnt != (SELECT MAX(cnt) FROM ActivityCounts) AND cnt != (SELECT MIN(cnt) FROM ActivityCounts);",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day106_to_115_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 112,
+    "topicNumber": 7,
+    "topicTitle": "Set Operations",
+    "title": "User Purchases",
+    "question": "Find the names of users who bought both 'Apple' and 'Samsung'. \n\nRules: Return result in any order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "USERS",
+        "rawContent": "user_id name 1 Alice 2 Bob 3 Charlie"
+      },
+      {
+        "name": "PURCHASES",
+        "rawContent": "user_id item 1 Apple 1 Samsung 2 Apple"
+      }
+    ],
+    "expectedOutput": "name\nAlice",
+    "sqlSolution": "SELECT u.name FROM Users u WHERE u.user_id IN (SELECT user_id FROM Purchases WHERE item = 'Apple') AND u.user_id IN (SELECT user_id FROM Purchases WHERE item = 'Samsung');",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day106_to_115_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 113,
+    "topicNumber": 7,
+    "topicTitle": "Set Operations",
+    "title": "Find Customers With Positive Revenue this Year",
+    "question": "Write an SQL query to report the customers with positive revenue in the year 2021. \n\nRules: Return the result table in any order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "CUSTOMERS",
+        "rawContent": "customer_id year revenue 1 2018 50 1 2021 30 1 2020 70 2 2021 -50 3 2021 50 4 2021 20"
+      }
+    ],
+    "expectedOutput": "customer_id\n1 3 4",
+    "sqlSolution": "SELECT customer_id FROM Customers WHERE year = 2021 AND revenue > 0;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day106_to_115_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 114,
+    "topicNumber": 7,
+    "topicTitle": "Set Operations",
+    "title": "Customers Who Bought All Products",
+    "question": "Write an SQL query to report the customer ids from the Customer table that bought all the products in the Product table. \n\nRules: Return the result table in any order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "CUSTOMER",
+        "rawContent": "customer_id product_key 1 5 2 6 3 5 3 6 1 6"
+      },
+      {
+        "name": "PRODUCT",
+        "rawContent": "product_key 5 6"
+      }
+    ],
+    "expectedOutput": "customer_id\n1 3",
+    "sqlSolution": "SELECT customer_id FROM Customer GROUP BY customer_id HAVING COUNT(DISTINCT product_key) = (SELECT COUNT(*) FROM Product);",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day106_to_115_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 115,
+    "topicNumber": 7,
+    "topicTitle": "Set Operations",
+    "title": "Unique Email Addresses",
+    "question": "Determine how many unique email addresses exist. Rules for local name: uppercase is treated as lowercase. '+' ignores everything after it in local name. \n\nRules: Note: We use string operations rather than sets, but union/distinct is key. Return just the count.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "EMAILS",
+        "rawContent": "id email 1 a@b.com 2 A@b.com 3 a+1@b.com 4 c@d.com"
+      }
+    ],
+    "expectedOutput": "unique_emails\n2",
+    "sqlSolution": "SELECT COUNT(DISTINCT CONCAT( SUBSTRING_INDEX(LOWER(email), '+', 1), '@', SUBSTRING_INDEX(LOWER(email), '@', -1) ) ) AS unique_emails FROM Emails;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day106_to_115_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 151,
+    "topicNumber": 10,
+    "topicTitle": "Data Cleaning & Transformation",
+    "title": "Replace Employee ID Unique Identifier",
+    "question": "Show the unique_id of each user, If a user doesn't have a unique_id replace with null. \n\nRules: Return result ordered by unique_id (desc).",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "EMPLOYEES",
+        "rawContent": "id name 1 Alice 7 Bob"
+      },
+      {
+        "name": "EMPLOYEEUNI",
+        "rawContent": "id unique_id 3 10 1 20"
+      }
+    ],
+    "expectedOutput": "unique_id\nname\n20\nAlice null\nBob",
+    "sqlSolution": "SELECT eu.unique_id, e.name FROM Employees e LEFT JOIN EmployeeUNI eu ON e.id = eu.id ORDER BY eu.unique_id DESC;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day151_to_165_Practice_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 152,
+    "topicNumber": 10,
+    "topicTitle": "Data Cleaning & Transformation",
+    "title": "Find Customer Referee",
+    "question": "Report the names of the customer that are not referred by the customer with id = 2. \n\nRules: Return result table in any order. Remember how NULLs behave in comparisons!",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "CUSTOMER",
+        "rawContent": "id name referee_id 1 Will null 2 Jane null 3 Alex 2 4 Bill null 5 Zack 1 6 Mark 2"
+      }
+    ],
+    "expectedOutput": "name\nWill Jane Bill Zack",
+    "sqlSolution": "SELECT name FROM Customer WHERE referee_id IS NULL OR referee_id <> 2;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day151_to_165_Practice_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 153,
+    "topicNumber": 10,
+    "topicTitle": "Data Cleaning & Transformation",
+    "title": "Rearrange Products Table",
+    "question": "Rearrange the Products table so that each row has (product_id, store, price). \n\nRules: If a product is not available in a store, do not include a row. Return table in any order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "PRODUCTS",
+        "rawContent": "product_id store1 store2 store3 0 95 100 105 1 70 null 80"
+      }
+    ],
+    "expectedOutput": "product_id\nstore\nprice\n0\nstore1\n95 0\nstore2\n100 0\nstore3\n105 1\nstore1\n70 1\nstore3\n80",
+    "sqlSolution": "SELECT product_id, 'store1' AS store, store1 AS price FROM Products WHERE store1 IS NOT NULL UNION ALL SELECT product_id, 'store2', store2 FROM Products WHERE store2 IS NOT NULL UNION ALL SELECT product_id, 'store3', store3 FROM Products WHERE store3 IS NOT NULL;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day151_to_165_Practice_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 154,
+    "topicNumber": 10,
+    "topicTitle": "Data Cleaning & Transformation",
+    "title": "Bank Account Summary",
+    "question": "Calculate the current balance for all users. Balance = initial + received - paid. \n\nRules: Return user_id, user_name, credit, and credit_limit_breached ('Yes' or 'No'). Breached if balance < 0.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "USERS",
+        "rawContent": "user_id user_name credit 1 Moustafa 100 2 Jonathan 200"
+      },
+      {
+        "name": "TRANSACTIONS",
+        "rawContent": "trans_id paid_by paid_to amount 1 1 2 400 2 2 1 200"
+      }
+    ],
+    "expectedOutput": "user_id\nuser_name\ncredit\ncredit_limit_breached\n1\nMoustafa\n-100\nYes 2\nJonathan\n400\nNo",
+    "sqlSolution": "WITH Out AS (SELECT paid_by AS user_id, SUM(amount) AS total_paid FROM Transactions GROUP BY paid_by), InT AS (SELECT paid_to AS user_id, SUM(amount) AS total_received FROM Transactions GROUP BY paid_to) SELECT u.user_id, u.user_name, (u.credit - IFNULL(O.total_paid, 0) + IFNULL(I.total_received, 0)) AS credit, CASE WHEN (u.credit - IFNULL(O.total_paid, 0) + IFNULL(I.total_received, 0)) < 0 THEN 'Yes' ELSE 'No' END AS credit_limit_breached FROM Users u LEFT JOIN Out O ON u.user_id = O.user_id LEFT JOIN InT I ON u.user_id = I.user_id;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day151_to_165_Practice_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 155,
+    "topicNumber": 10,
+    "topicTitle": "Data Cleaning & Transformation",
+    "title": "Bank Account Summary II",
+    "question": "Report the name and balance of users with a balance higher than 10000. \n\nRules: Balance = sum of all transactions involving that account. Return result in any order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "USERS",
+        "rawContent": "account name 900001 Alice 900002 Bob"
+      },
+      {
+        "name": "TRANSACTIONS",
+        "rawContent": "trans_id account amount 1 900001 7000 2 900001 7000 3 900002 1000"
+      }
+    ],
+    "expectedOutput": "name\nbalance\nAlice\n14000",
+    "sqlSolution": "SELECT u.name, SUM(t.amount) AS balance FROM Users u JOIN Transactions t ON u.account = t.account GROUP BY u.name HAVING SUM(t.amount) > 10000;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day151_to_165_Practice_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 156,
+    "topicNumber": 10,
+    "topicTitle": "Data Cleaning & Transformation",
+    "title": "Unique Orders and Customers Per Month",
+    "question": "Find the number of unique orders and unique customers per month where the invoice is strictly > $20. \n\nRules: Return the result table in any order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "ORDERS",
+        "rawContent": "order_id order_date customer_id invoice 1 2020-09-15 1 10 2 2020-09-17 2 20 3 2020-10-01 1 30"
+      }
+    ],
+    "expectedOutput": "month\norder_count\ncustomer_count\n2020-10\n1\n1",
+    "sqlSolution": "SELECT DATE_FORMAT(order_date, '%Y-%m') AS month, COUNT(DISTINCT order_id) AS order_count, COUNT(DISTINCT customer_id) AS customer_count FROM Orders WHERE invoice > 20 GROUP BY month;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day151_to_165_Practice_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 157,
+    "topicNumber": 10,
+    "topicTitle": "Data Cleaning & Transformation",
+    "title": "Delete Duplicate Emails",
+    "question": "Delete all duplicate email entries in the Person table, keeping only unique emails based on their smallest id. \n\nRules: This must be a DELETE statement. After deletion, the Person table should not contain duplicates. Return result in any order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "PERSON",
+        "rawContent": "id email 1 john@example.com 2 bob@example.com 3 john@example.com"
+      }
+    ],
+    "expectedOutput": "Person\ntable content after\nDELETE\n1\njohn@example.com 2\nbob@example.com",
+    "sqlSolution": "DELETE p1 FROM Person p1, Person p2 WHERE p1.Email = p2.Email AND p1.Id > p2.Id;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day151_to_165_Practice_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 158,
+    "topicNumber": 10,
+    "topicTitle": "Data Cleaning & Transformation",
+    "title": "Unique Email Addresses",
+    "question": "Find how many unique email addresses actually receive mail. \n\nRules: Rules: Uppercase is treated as lowercase. '.': ignore periods in local name (before '@'). '+': ignore everything after it in local name.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "EMAILS",
+        "rawContent": "id email 1 test.email+alex@leetcode.com 2 test.e.mail+bob.cathy@leetcode.com 3 testemail+david@lee.tcode.com"
+      }
+    ],
+    "expectedOutput": "unique_emails_count\n2",
+    "sqlSolution": "WITH Cleaned AS ( SELECT id, CONCAT( LOWER(REPLACE(SUBSTRING_INDEX(email, '@', 1), '.', '')), '@', SUBSTRING_INDEX(email, '@', -1) ) AS normalized_email FROM Emails WHERE SUBSTRING_INDEX(email, '@', 1) NOT LIKE '%+%' UNION SELECT id, CONCAT( LOWER(REPLACE(SUBSTRING_INDEX(SUBSTRING_INDEX(email, '+', 1), '@', 1), '.', '')), '@', SUBSTRING_INDEX(email, '@', -1) ) FROM Emails WHERE SUBSTRING_INDEX(email, '@', 1) LIKE '%+%' ) SELECT COUNT(DISTINCT normalized_email) AS unique_emails_count FROM Cleaned;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day151_to_165_Practice_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 159,
+    "topicNumber": 10,
+    "topicTitle": "Data Cleaning & Transformation",
+    "title": "Products Price for Each Store",
+    "question": "Find the price of each product in each store. \n\nRules: Result should have (product_id, store1, store2, store3). Use conditional aggregation or pivot-like logic. Return table in any order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "PRODUCTS",
+        "rawContent": "product_id store price 0 store1 95 0 store3 105 0 store2 100 1 store1 70"
+      }
+    ],
+    "expectedOutput": "product_id\nstore1\nstore2\nstore3\n0\n95\n100\n105 1\n70\nnull\nnull",
+    "sqlSolution": "SELECT product_id, MAX(CASE WHEN store = 'store1' THEN price ELSE NULL END) AS store1, MAX(CASE WHEN store = 'store2' THEN price ELSE NULL END) AS store2, MAX(CASE WHEN store = 'store3' THEN price ELSE NULL END) AS store3 FROM Products GROUP BY product_id;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day151_to_165_Practice_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 160,
+    "topicNumber": 10,
+    "topicTitle": "Data Cleaning & Transformation",
+    "title": "Suspicious Bank Accounts",
+    "question": "Find the account_id of suspicious bank accounts. \n\nRules: Suspicious: Creditor income in two or more *consecutive* months strictly exceeds max_income. Creditor income = sum of Creditor amounts in a month. Return result in any order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "ACCOUNTS",
+        "rawContent": "account_id max_income 1 1000 2 5000 3 2000"
+      },
+      {
+        "name": "TRANSACTIONS",
+        "rawContent": "trans_id account_id type amount day 1 1 Creditor 1200 2021-01-01 2 1 Creditor 1000 2021-02-01 3 2 Creditor 6000 2021-01-15 4 2 Creditor 200 2021-01-16"
+      }
+    ],
+    "expectedOutput": "account_id\n1",
+    "sqlSolution": "WITH MonthlyIncome AS ( SELECT t.account_id, DATE_FORMAT(t.day, '%Y%m') as month, SUM(t.amount) as income FROM Transactions t JOIN Accounts a ON t.account_id = a.account_id WHERE t.type = 'Creditor' GROUP BY 1, 2 ), Breaches AS ( SELECT m.account_id, m.month, m.income, (SELECT month FROM MonthlyIncome m2 WHERE m2.account_id = m.account_id AND PERIOD_DIFF(m2.month, m.month) = 1) as next_breached_month FROM MonthlyIncome m JOIN Accounts a ON m.account_id = a.account_id WHERE m.income > a.max_income ) SELECT DISTINCT account_id FROM Breaches WHERE next_breached_month IS NOT NULL;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day151_to_165_Practice_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 161,
+    "topicNumber": 10,
+    "topicTitle": "Data Cleaning & Transformation",
+    "title": "Orders Max Quantity Above Average",
+    "question": "Report the order_id of all orders where the maximum quantity in that order is strictly > the overall average quantity of all orders. \n\nRules: Return the result table in any order. Remember the difference between MAX per order vs OVERALL AVG.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "ORDERS",
+        "rawContent": "order_id product_id quantity 1 1 12 1 2 10 1 3 15 2 1 8 3 1 20 3 2 20"
+      }
+    ],
+    "expectedOutput": "order_id\n3",
+    "sqlSolution": "WITH PerOrderMax AS ( SELECT order_id, MAX(quantity) as max_quant FROM Orders GROUP BY order_id ), OverallAvg AS ( SELECT AVG(quantity) as avg_quant FROM Orders ) SELECT order_id FROM PerOrderMax WHERE max_quant > (SELECT avg_quant FROM OverallAvg);",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day151_to_165_Practice_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 162,
+    "topicNumber": 10,
+    "topicTitle": "Data Cleaning & Transformation",
+    "title": "Grand Slam Titles",
+    "question": "Write an SQL query to report the number of grand slam titles won by each player. \n\nRules: A grand slam is wimbledon, fr_open, us_open, au_open. Do not include players who did not win any title. Return result in any order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "PLAYERS",
+        "rawContent": "player_id player_name 1 Alice 2 Bob 3 Charlie"
+      },
+      {
+        "name": "CHAMPIONSHIPS",
+        "rawContent": "year wimbledon fr_open us_open au_open 2020 1 1 1 1 2021 1 2 1 3 2022 1 3 2 3"
+      }
+    ],
+    "expectedOutput": "player_id\nplayer_name\ngrand_slams_count\n1\nAlice\n6 2\nBob\n2 3\nCharlie\n4",
+    "sqlSolution": "WITH AllWinners AS ( SELECT wimbledon as winner_id FROM Championships UNION ALL SELECT fr_open FROM Championships UNION ALL SELECT us_open FROM Championships UNION ALL SELECT au_open FROM Championships ) SELECT p.player_id, p.player_name, (SELECT COUNT(*) FROM AllWinners w WHERE w.winner_id = p.player_id) as grand_slams_count FROM Players p WHERE EXISTS (SELECT 1 FROM AllWinners w WHERE w.winner_id = p.player_id);",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day151_to_165_Practice_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 163,
+    "topicNumber": 10,
+    "topicTitle": "Data Cleaning & Transformation",
+    "title": "Fix Product Name Format",
+    "question": "Since table data was entered by different people, the product_name is very inconsistent. Write a query to return the lowercase, space- trimmed product_name and the total number of sales for that product. \n\nRules: Format product_name to lower case and remove leading/trailing spaces. Return result ordered by product_name.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "SALES",
+        "rawContent": "sale_id product_name sale_date 1 LCPHONE 2000-01-16 2 LCPhone 2000-01-17 3 LcPhOnE 2000-02-18 4 LCKeyCHain 2000-02-19"
+      }
+    ],
+    "expectedOutput": "product_name\ntotal_sales\nlckeychain\n1 lcphone\n3",
+    "sqlSolution": "SELECT LOWER(TRIM(product_name)) AS product_name, COUNT(sale_id) AS total_sales FROM Sales GROUP BY product_name ORDER BY product_name;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day151_to_165_Practice_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 164,
+    "topicNumber": 10,
+    "topicTitle": "Data Cleaning & Transformation",
+    "title": "Hotel Booking Cancellations",
+    "question": "Report the cancellation rate of hotel bookings. \n\nRules: Cancellation rate = Canceled bookings / Total bookings. Return booking_date, canceled_rate. Group by booking_date, return result in any order.",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "BOOKINGS",
+        "rawContent": "booking_id hotel_id status booking_date 1 101 Canceled 2022-01-01 2 101 Completed 2022-01-01 3 102 Canceled 2022-01-02"
+      }
+    ],
+    "expectedOutput": "booking_date\ncanceled_rate\n2022-01-01\n0.5 2022-01-02\n1.0",
+    "sqlSolution": "SELECT booking_date, ROUND(SUM(CASE WHEN status = 'Canceled' THEN 1 ELSE 0 END) / COUNT(*), 2) AS canceled_rate FROM Bookings GROUP BY booking_date;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day151_to_165_Practice_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  },
+  {
+    "day": 165,
+    "topicNumber": 10,
+    "topicTitle": "Data Cleaning & Transformation",
+    "title": "User Purchases (Multiple Products)",
+    "question": "Report the customer_ids that bought both product '5' and product '6'. \n\nRules: Return the result table ordered by customer_id (asc).",
+    "explanation": null,
+    "inputTables": [
+      {
+        "name": "CUSTOMER",
+        "rawContent": "customer_id product_id 1 5 2 6 3 5 3 6 1 6"
+      },
+      {
+        "name": "PRODUCT",
+        "rawContent": "product_id 5 6"
+      }
+    ],
+    "expectedOutput": "customer_id\n1 3",
+    "sqlSolution": "SELECT customer_id FROM Customer WHERE product_id = 5 INTERSECT SELECT customer_id FROM Customer WHERE product_id = 6 ORDER BY customer_id;",
+    "pySparkSolution": null,
+    "sourceReferences": [
+      "DE_SQL_Day151_to_165_Practice_Workbook.pdf"
+    ],
+    "sourceStatus": "SOURCE-DERIVED"
+  }
+]

@@ -16,9 +16,8 @@ export function Navbar() {
           <Link href="/#learn" className="hover:text-white transition-colors">Learn</Link>
           <Link href="/#fundamentals" className="hover:text-white transition-colors">Fundamentals</Link>
           <Link href="/#roadmap" className="hover:text-white transition-colors">Roadmap</Link>
-          <Link href="/#practice" className="hover:text-white transition-colors">Practice</Link>
-          <Link href="/#interview" className="hover:text-white transition-colors">Interview</Link>
-          <Link href="/#projects" className="hover:text-white transition-colors">Projects</Link>
+          <Link href="/sql-challenges" className="hover:text-white transition-colors">SQL Challenges</Link>
+          <Link href="/projects" className="hover:text-white transition-colors">Projects</Link>
         </div>
 
         <div className="flex items-center gap-4">

@@ -3,8 +3,8 @@ import { ProjectService } from '@/lib/services/projectService';
 import { NotFoundError, ValidationError } from '@/lib/errors';
 import { SlugParamSchema } from '@/lib/validators';
 
-export const GET = withApiRoute(async (req, requestId, context: { params: Promise<{ slug: string }> }) => {
-  const { slug } = await context.params;
+export const GET = withApiRoute(async (req, requestId, context?: { params: Promise<{ slug: string }> }) => {
+  const { slug } = await context!.params;
 
   const validationResult = SlugParamSchema.safeParse({ slug });
   if (!validationResult.success) {
