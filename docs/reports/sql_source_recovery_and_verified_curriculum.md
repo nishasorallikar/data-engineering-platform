@@ -9,7 +9,6 @@ Missing: 80
 Conflicting: 0
 Unreadable: 0
 ```
-*Note: A deep search of the entire workspace revealed that the raw PDF/Word documents for Days 1–115 and 151–165 are actually present in a sibling directory (`SQL 210 DAYS QUESTIOS AND SOLUTIONS _ DATA ENGINEERING DAILY`), whereas Days 116–150 and 166–210 are genuinely missing from the local disk.*
 
 ---
 
@@ -17,21 +16,19 @@ Unreadable: 0
 
 | Source File | Location | Type | Claimed Days | Actual Days | Status |
 |---|---|---|---|---|---|
-| `210 Days SQLPyspark Interview Questions — Data Engineer Role.docx` | `../SQL 210 DAYS QUESTIOS AND SOLUTIONS...` | DOCX | 1-210 | 1-77 | FOUND_PARTIAL |
-| `DE_SQL_Day1_to_20_Workbook.pdf` | `../SQL 210 DAYS QUESTIOS AND SOLUTIONS...` | PDF | 1-20 | 1-20 | FOUND |
-| `DE_SQL_Day21_to_40_Workbook.pdf` | `../SQL 210 DAYS QUESTIOS AND SOLUTIONS...` | PDF | 21-40 | 21-40 | FOUND |
-| `DE_SQL_Day41_to_60_Workbook.pdf` | `../SQL 210 DAYS QUESTIOS AND SOLUTIONS...` | PDF | 41-60 | 41-60 | FOUND |
-| `DE_SQL_Day61_to_75_Workbook.pdf` | `../SQL 210 DAYS QUESTIOS AND SOLUTIONS...` | PDF | 61-75 | 61-75 | FOUND |
-| `DE_SQL_Day76_to_90_Workbook.pdf` | `../SQL 210 DAYS QUESTIOS AND SOLUTIONS...` | PDF | 76-90 | 76-90 | FOUND |
-| `DE_SQL_Day91_to_105_Workbook.pdf` | `../SQL 210 DAYS QUESTIOS AND SOLUTIONS...` | PDF | 91-105 | 91-105 | FOUND |
-| `DE_SQL_Day106_to_115_Workbook.pdf` | `../SQL 210 DAYS QUESTIOS AND SOLUTIONS...` | PDF | 106-115 | 106-115 | FOUND |
-| `DE_SQL_Day116_to_135_Workbook.pdf` | N/A | PDF | 116-135 | 0 | MISSING |
-| `DE_SQL_Day136_to_150_Workbook.pdf` | N/A | PDF | 136-150 | 0 | MISSING |
-| `DE_SQL_Day151_to_165_Practice_Workbook.pdf` | `../SQL 210 DAYS QUESTIOS AND SOLUTIONS...` | PDF | 151-165 | 151-165 | FOUND |
-| `DE_SQL_Day166_to_185_Workbook.pdf` | N/A | PDF | 166-185 | 0 | MISSING |
-| `DE_SQL_Day186_to_210_Workbook.pdf` | N/A | PDF | 186-210 | 0 | MISSING |
-
-*(Note: Corresponding Solutions Workbooks for all 'FOUND' ranges were also located).*
+| 210 Days SQLPyspark Interview Questions — Data Engineer Role.docx | ../SQL 210 DAYS QUESTIOS AND SOLUTIONS _ DATA ENGINEERING DAILY | DOCX | 1-210 | 1-77 | FOUND_PARTIAL |
+| DE_SQL_Day1_to_20_Workbook.pdf | ../SQL 210 DAYS QUESTIOS AND SOLUTIONS _ DATA ENGINEERING DAILY | PDF | 1-20 | 1-20 | FOUND |
+| DE_SQL_Day21_to_40_Workbook.pdf | ../SQL 210 DAYS QUESTIOS AND SOLUTIONS _ DATA ENGINEERING DAILY | PDF | 21-40 | 21-40 | FOUND |
+| DE_SQL_Day41_to_60_Workbook.pdf | ../SQL 210 DAYS QUESTIOS AND SOLUTIONS _ DATA ENGINEERING DAILY | PDF | 41-60 | 41-60 | FOUND |
+| DE_SQL_Day61_to_75_Workbook.pdf | ../SQL 210 DAYS QUESTIOS AND SOLUTIONS _ DATA ENGINEERING DAILY | PDF | 61-75 | 61-75 | FOUND |
+| DE_SQL_Day76_to_90_Workbook.pdf | ../SQL 210 DAYS QUESTIOS AND SOLUTIONS _ DATA ENGINEERING DAILY | PDF | 76-90 | 76-90 | FOUND |
+| DE_SQL_Day91_to_105_Workbook.pdf | ../SQL 210 DAYS QUESTIOS AND SOLUTIONS _ DATA ENGINEERING DAILY | PDF | 91-105 | 91-105 | FOUND |
+| DE_SQL_Day106_to_115_Workbook.pdf | ../SQL 210 DAYS QUESTIOS AND SOLUTIONS _ DATA ENGINEERING DAILY | PDF | 106-115 | 106-115 | FOUND |
+| DE_SQL_Day116_to_135_Workbook.pdf | N/A | PDF | 116-135 | 0 | MISSING |
+| DE_SQL_Day136_to_150_Workbook.pdf | N/A | PDF | 136-150 | 0 | MISSING |
+| DE_SQL_Day151_to_165_Practice_Workbook.pdf | ../SQL 210 DAYS QUESTIOS AND SOLUTIONS _ DATA ENGINEERING DAILY | PDF | 151-165 | 151-165 | FOUND |
+| DE_SQL_Day166_to_185_Workbook.pdf | N/A | PDF | 166-185 | 0 | MISSING |
+| DE_SQL_Day186_to_210_Workbook.pdf | N/A | PDF | 186-210 | 0 | MISSING |
 
 ---
 
@@ -57,18 +54,223 @@ Unreadable: 0
 ## Exact Day Map
 
 ```text
-Day 1-115 → SOURCE_MATCH (PDF Workbooks)
-Day 116-150 → MISSING SOURCE
-Day 151-165 → SOURCE_MATCH (PDF Workbooks)
-Day 166-210 → MISSING SOURCE
+Day 1 → SOURCE_MATCH
+Day 2 → SOURCE_MATCH
+Day 3 → SOURCE_MATCH
+Day 4 → SOURCE_MATCH
+Day 5 → SOURCE_MATCH
+Day 6 → SOURCE_MATCH
+Day 7 → SOURCE_MATCH
+Day 8 → SOURCE_MATCH
+Day 9 → SOURCE_MATCH
+Day 10 → SOURCE_MATCH
+Day 11 → SOURCE_MATCH
+Day 12 → SOURCE_MATCH
+Day 13 → SOURCE_MATCH
+Day 14 → SOURCE_MATCH
+Day 15 → SOURCE_MATCH
+Day 16 → SOURCE_MATCH
+Day 17 → SOURCE_MATCH
+Day 18 → SOURCE_MATCH
+Day 19 → SOURCE_MATCH
+Day 20 → SOURCE_MATCH
+Day 21 → SOURCE_MATCH
+Day 22 → SOURCE_MATCH
+Day 23 → SOURCE_MATCH
+Day 24 → SOURCE_MATCH
+Day 25 → SOURCE_MATCH
+Day 26 → SOURCE_MATCH
+Day 27 → SOURCE_MATCH
+Day 28 → SOURCE_MATCH
+Day 29 → SOURCE_MATCH
+Day 30 → SOURCE_MATCH
+Day 31 → SOURCE_MATCH
+Day 32 → SOURCE_MATCH
+Day 33 → SOURCE_MATCH
+Day 34 → SOURCE_MATCH
+Day 35 → SOURCE_MATCH
+Day 36 → SOURCE_MATCH
+Day 37 → SOURCE_MATCH
+Day 38 → SOURCE_MATCH
+Day 39 → SOURCE_MATCH
+Day 40 → SOURCE_MATCH
+Day 41 → SOURCE_MATCH
+Day 42 → SOURCE_MATCH
+Day 43 → SOURCE_MATCH
+Day 44 → SOURCE_MATCH
+Day 45 → SOURCE_MATCH
+Day 46 → SOURCE_MATCH
+Day 47 → SOURCE_MATCH
+Day 48 → SOURCE_MATCH
+Day 49 → SOURCE_MATCH
+Day 50 → SOURCE_MATCH
+Day 51 → SOURCE_MATCH
+Day 52 → SOURCE_MATCH
+Day 53 → SOURCE_MATCH
+Day 54 → SOURCE_MATCH
+Day 55 → SOURCE_MATCH
+Day 56 → SOURCE_MATCH
+Day 57 → SOURCE_MATCH
+Day 58 → SOURCE_MATCH
+Day 59 → SOURCE_MATCH
+Day 60 → SOURCE_MATCH
+Day 61 → SOURCE_MATCH
+Day 62 → SOURCE_MATCH
+Day 63 → SOURCE_MATCH
+Day 64 → SOURCE_MATCH
+Day 65 → SOURCE_MATCH
+Day 66 → SOURCE_MATCH
+Day 67 → SOURCE_MATCH
+Day 68 → SOURCE_MATCH
+Day 69 → SOURCE_MATCH
+Day 70 → SOURCE_MATCH
+Day 71 → SOURCE_MATCH
+Day 72 → SOURCE_MATCH
+Day 73 → SOURCE_MATCH
+Day 74 → SOURCE_MATCH
+Day 75 → SOURCE_MATCH
+Day 76 → SOURCE_MATCH
+Day 77 → SOURCE_MATCH
+Day 78 → SOURCE_MATCH
+Day 79 → SOURCE_MATCH
+Day 80 → SOURCE_MATCH
+Day 81 → SOURCE_MATCH
+Day 82 → SOURCE_MATCH
+Day 83 → SOURCE_MATCH
+Day 84 → SOURCE_MATCH
+Day 85 → SOURCE_MATCH
+Day 86 → SOURCE_MATCH
+Day 87 → SOURCE_MATCH
+Day 88 → SOURCE_MATCH
+Day 89 → SOURCE_MATCH
+Day 90 → SOURCE_MATCH
+Day 91 → SOURCE_MATCH
+Day 92 → SOURCE_MATCH
+Day 93 → SOURCE_MATCH
+Day 94 → SOURCE_MATCH
+Day 95 → SOURCE_MATCH
+Day 96 → SOURCE_MATCH
+Day 97 → SOURCE_MATCH
+Day 98 → SOURCE_MATCH
+Day 99 → SOURCE_MATCH
+Day 100 → SOURCE_MATCH
+Day 101 → SOURCE_MATCH
+Day 102 → SOURCE_MATCH
+Day 103 → SOURCE_MATCH
+Day 104 → SOURCE_MATCH
+Day 105 → SOURCE_MATCH
+Day 106 → SOURCE_MATCH
+Day 107 → SOURCE_MATCH
+Day 108 → SOURCE_MATCH
+Day 109 → SOURCE_MATCH
+Day 110 → SOURCE_MATCH
+Day 111 → SOURCE_MATCH
+Day 112 → SOURCE_MATCH
+Day 113 → SOURCE_MATCH
+Day 114 → SOURCE_MATCH
+Day 115 → SOURCE_MATCH
+Day 116 → MISSING SOURCE
+Day 117 → MISSING SOURCE
+Day 118 → MISSING SOURCE
+Day 119 → MISSING SOURCE
+Day 120 → MISSING SOURCE
+Day 121 → MISSING SOURCE
+Day 122 → MISSING SOURCE
+Day 123 → MISSING SOURCE
+Day 124 → MISSING SOURCE
+Day 125 → MISSING SOURCE
+Day 126 → MISSING SOURCE
+Day 127 → MISSING SOURCE
+Day 128 → MISSING SOURCE
+Day 129 → MISSING SOURCE
+Day 130 → MISSING SOURCE
+Day 131 → MISSING SOURCE
+Day 132 → MISSING SOURCE
+Day 133 → MISSING SOURCE
+Day 134 → MISSING SOURCE
+Day 135 → MISSING SOURCE
+Day 136 → MISSING SOURCE
+Day 137 → MISSING SOURCE
+Day 138 → MISSING SOURCE
+Day 139 → MISSING SOURCE
+Day 140 → MISSING SOURCE
+Day 141 → MISSING SOURCE
+Day 142 → MISSING SOURCE
+Day 143 → MISSING SOURCE
+Day 144 → MISSING SOURCE
+Day 145 → MISSING SOURCE
+Day 146 → MISSING SOURCE
+Day 147 → MISSING SOURCE
+Day 148 → MISSING SOURCE
+Day 149 → MISSING SOURCE
+Day 150 → MISSING SOURCE
+Day 151 → SOURCE_MATCH
+Day 152 → SOURCE_MATCH
+Day 153 → SOURCE_MATCH
+Day 154 → SOURCE_MATCH
+Day 155 → SOURCE_MATCH
+Day 156 → SOURCE_MATCH
+Day 157 → SOURCE_MATCH
+Day 158 → SOURCE_MATCH
+Day 159 → SOURCE_MATCH
+Day 160 → SOURCE_MATCH
+Day 161 → SOURCE_MATCH
+Day 162 → SOURCE_MATCH
+Day 163 → SOURCE_MATCH
+Day 164 → SOURCE_MATCH
+Day 165 → SOURCE_MATCH
+Day 166 → MISSING SOURCE
+Day 167 → MISSING SOURCE
+Day 168 → MISSING SOURCE
+Day 169 → MISSING SOURCE
+Day 170 → MISSING SOURCE
+Day 171 → MISSING SOURCE
+Day 172 → MISSING SOURCE
+Day 173 → MISSING SOURCE
+Day 174 → MISSING SOURCE
+Day 175 → MISSING SOURCE
+Day 176 → MISSING SOURCE
+Day 177 → MISSING SOURCE
+Day 178 → MISSING SOURCE
+Day 179 → MISSING SOURCE
+Day 180 → MISSING SOURCE
+Day 181 → MISSING SOURCE
+Day 182 → MISSING SOURCE
+Day 183 → MISSING SOURCE
+Day 184 → MISSING SOURCE
+Day 185 → MISSING SOURCE
+Day 186 → MISSING SOURCE
+Day 187 → MISSING SOURCE
+Day 188 → MISSING SOURCE
+Day 189 → MISSING SOURCE
+Day 190 → MISSING SOURCE
+Day 191 → MISSING SOURCE
+Day 192 → MISSING SOURCE
+Day 193 → MISSING SOURCE
+Day 194 → MISSING SOURCE
+Day 195 → MISSING SOURCE
+Day 196 → MISSING SOURCE
+Day 197 → MISSING SOURCE
+Day 198 → MISSING SOURCE
+Day 199 → MISSING SOURCE
+Day 200 → MISSING SOURCE
+Day 201 → MISSING SOURCE
+Day 202 → MISSING SOURCE
+Day 203 → MISSING SOURCE
+Day 204 → MISSING SOURCE
+Day 205 → MISSING SOURCE
+Day 206 → MISSING SOURCE
+Day 207 → MISSING SOURCE
+Day 208 → MISSING SOURCE
+Day 209 → MISSING SOURCE
+Day 210 → MISSING SOURCE
 ```
 
 ---
 
 ## Duplicate / Conflict Report
 
-**NO CONFLICTS FOUND.**
-All 130 challenges exist uniquely within `sql-challenges.json` with perfectly distinct problem numbers, titles, and IDs. Cross-referencing against the extracted DOCX text revealed exactly 75/75 title matches for Days 1-75, proving high fidelity between source and JSON representation.
+NO CONFLICTS FOUND.
 
 ---
 
@@ -77,10 +279,10 @@ All 130 challenges exist uniquely within `sql-challenges.json` with perfectly di
 ```text
 Total records: 130
 Unique days: 130
-Missing days: 80 (Ranges 116-150, 166-210)
+Missing days: 80
 Duplicate days: 0
-Structured tables: ~80 (Later challenges)
-Unstructured tables: 50 (Days 1-50 Legacy)
+Structured tables: 80
+Unstructured tables: 50
 Incomplete records: 0
 ```
 
@@ -95,7 +297,6 @@ JSON_ONLY: 0
 SOURCE_ONLY: 0
 CONFLICT: 0
 ```
-*Conclusion: The JSON perfectly mirrors the physically available source documents.*
 
 ---
 
@@ -107,17 +308,66 @@ Clearly extractable: 6
 Ambiguous: 44
 No table: 0
 ```
-Affected Days: 1-50.
+
+Affected Days:
+```text
+Day 1 → CLEARLY_EXTRACTABLE
+Day 2 → AMBIGUOUS
+Day 3 → CLEARLY_EXTRACTABLE
+Day 4 → AMBIGUOUS
+Day 5 → CLEARLY_EXTRACTABLE
+Day 6 → AMBIGUOUS
+Day 7 → AMBIGUOUS
+Day 8 → AMBIGUOUS
+Day 9 → AMBIGUOUS
+Day 10 → CLEARLY_EXTRACTABLE
+Day 11 → AMBIGUOUS
+Day 12 → CLEARLY_EXTRACTABLE
+Day 13 → AMBIGUOUS
+Day 14 → AMBIGUOUS
+Day 15 → CLEARLY_EXTRACTABLE
+Day 16 → AMBIGUOUS
+Day 17 → AMBIGUOUS
+Day 18 → AMBIGUOUS
+Day 19 → AMBIGUOUS
+Day 20 → AMBIGUOUS
+Day 21 → AMBIGUOUS
+Day 22 → AMBIGUOUS
+Day 23 → AMBIGUOUS
+Day 24 → AMBIGUOUS
+Day 25 → AMBIGUOUS
+Day 26 → AMBIGUOUS
+Day 27 → AMBIGUOUS
+Day 28 → AMBIGUOUS
+Day 29 → AMBIGUOUS
+Day 30 → AMBIGUOUS
+Day 31 → AMBIGUOUS
+Day 32 → AMBIGUOUS
+Day 33 → AMBIGUOUS
+Day 34 → AMBIGUOUS
+Day 35 → AMBIGUOUS
+Day 36 → AMBIGUOUS
+Day 37 → AMBIGUOUS
+Day 38 → AMBIGUOUS
+Day 39 → AMBIGUOUS
+Day 40 → AMBIGUOUS
+Day 41 → AMBIGUOUS
+Day 42 → AMBIGUOUS
+Day 43 → AMBIGUOUS
+Day 44 → AMBIGUOUS
+Day 45 → AMBIGUOUS
+Day 46 → AMBIGUOUS
+Day 47 → AMBIGUOUS
+Day 48 → AMBIGUOUS
+Day 49 → AMBIGUOUS
+Day 50 → AMBIGUOUS
+```
 
 ---
 
 ## Recommended Next Phase
 
-**OPTION C — Build a partial verified curriculum**
+VERIFIED DATASET BUILD
 
 **Explanation:**
-We have exactly 130 verified challenges, backed completely by original source documents, with no conflicts, running in a verified production Next.js environment. We do not have the source files for the remaining 80 challenges. Attempting to artificially generate the 80 missing challenges would break the strict "Verified Curriculum" mandate. 
-
-Instead, we should formally label and launch this as a "130-Challenge Curriculum", leaving the missing ranges safely documented. Furthermore, the legacy table ambiguity (Days 1-50) requires human-in-the-loop review before migrating.
-
-Therefore, the safest and most accurate next step is to accept the 130 verified challenges as the golden dataset, and proceed to the next platform update or safe extraction dry run.
+We have 130 strictly verified challenges backed by authentic source workbooks. We are missing 80. Attempting to extract the legacy ambiguous tables mathematically risks corruption. The exact next safe implementation phase is to proceed with building the UI/Dataset specifically labeling this as the verified 130-challenge dataset, rather than trying to force the missing 80 or guess table structures.
