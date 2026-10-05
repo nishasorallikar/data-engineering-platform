@@ -1,25 +1,15 @@
 import React from 'react';
 import { ProjectCard } from '@/components/projects/ProjectCard';
 import { ProjectDTO } from '@/lib/dto/projectDto';
+import { ProjectService } from '@/lib/services/projectService';
 
 export const dynamic = 'force-dynamic';
 
-async function getProjects() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/projects`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) {
-    throw new Error('Failed to fetch projects');
-  }
-  
-  return res.json();
-}
-
 export default async function ProjectsLibraryPage() {
-  let data;
+  let projects: ProjectDTO[] = [];
   try {
-    data = await getProjects();
+    const projectService = new ProjectService();
+    projects = await projectService.getAllProjects();
   } catch (e) {
     return (
       <div className="min-h-screen pt-32 pb-20 flex flex-col items-center justify-center text-center px-4">
@@ -29,7 +19,7 @@ export default async function ProjectsLibraryPage() {
     );
   }
 
-  const projects: ProjectDTO[] = data?.projects || [];
+
 
   return (
     <div className="min-h-screen pt-32 pb-20 px-6 max-w-7xl mx-auto">
