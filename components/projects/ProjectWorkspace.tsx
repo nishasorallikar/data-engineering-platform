@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Shield, Workflow, CheckCircle2, Lock, Activity, ChevronRight, Terminal, User, Cpu, Play } from 'lucide-react';
+import { ArrowLeft, Shield, Workflow, CheckCircle2, Lock, Activity, ChevronRight, Terminal, User, Cpu, Play, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { ProjectDTO } from '@/lib/dto/projectDto';
 import { ArchitectureExplorer } from '@/components/projects/architecture/ArchitectureExplorer';
@@ -125,9 +125,22 @@ export const ProjectWorkspace: React.FC<ProjectWorkspaceProps> = ({ project }) =
             </Link>
           </nav>
 
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-4 font-['Space_Grotesk',sans-serif]">
-            {project.title}
-          </h1>
+          <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white font-['Space_Grotesk',sans-serif]">
+              {project.title}
+            </h1>
+            {project.projectUrl && (
+              <a
+                href={project.projectUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-cyan-400 bg-cyan-950/30 border border-cyan-500/30 hover:bg-cyan-950/50 hover:border-cyan-500/50 transition-colors rounded-full"
+              >
+                View Repository
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            )}
+          </div>
           <h2 className="text-xl text-zinc-400 mb-6 font-['Space_Grotesk',sans-serif]">
             Azure Data Engineering Architecture
           </h2>

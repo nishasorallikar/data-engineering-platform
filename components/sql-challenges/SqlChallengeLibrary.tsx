@@ -17,6 +17,7 @@ export default function SqlChallengeLibrary({ initialChallenges, totalCount }: S
   const [difficultyFilter, setDifficultyFilter] = useState<string>("ALL");
   const [hasSql, setHasSql] = useState<boolean>(false);
   const [hasPySpark, setHasPySpark] = useState<boolean>(false);
+  const [viewMode, setViewMode] = useState<"GRID" | "TOPICS">("GRID");
 
   // Extract unique topics from available data
   const topics = useMemo(() => {
@@ -60,9 +61,9 @@ export default function SqlChallengeLibrary({ initialChallenges, totalCount }: S
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full scroll-mt-16">
       {/* HERO SECTION */}
-      <div className="border-b border-zinc-800 bg-zinc-950/50 backdrop-blur-md sticky top-16 z-30">
+      <div className="border-b border-zinc-800 bg-zinc-950/50">
         <div className="container mx-auto px-6 max-w-7xl pt-12 pb-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8">
             <div className="max-w-2xl">
@@ -112,7 +113,7 @@ export default function SqlChallengeLibrary({ initialChallenges, totalCount }: S
         </div>
 
         {/* COMMAND BAR */}
-        <div className="border-t border-zinc-800 bg-zinc-900/80">
+        <div className="border-t border-zinc-800 bg-zinc-900/90 backdrop-blur-md sticky top-16 z-30 shadow-md">
           <div className="container mx-auto px-6 max-w-7xl py-3 flex flex-wrap items-center gap-4">
             <div className="relative flex-1 min-w-[250px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
@@ -170,28 +171,116 @@ export default function SqlChallengeLibrary({ initialChallenges, totalCount }: S
             </div>
           </div>
         </div>
+
+        {/* DAY PROGRESSION VISUAL */}
+        <div className="border-t border-zinc-900 bg-zinc-950/80 py-4 px-6 md:px-0 hidden sm:block">
+          <div className="container mx-auto max-w-7xl">
+            <div className="flex items-center gap-4 text-xs font-mono text-zinc-500 mb-3 uppercase tracking-wider">
+              <span>Curriculum Availability</span>
+              <div className="flex gap-3">
+                <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>Verified Source</span>
+                <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-zinc-800"></div>Unavailable</span>
+              </div>
+            </div>
+            
+            <div className="relative flex items-center h-8">
+              {/* Timeline Track */}
+              <div className="absolute left-0 right-0 h-0.5 bg-zinc-900 top-1/2 -translate-y-1/2 rounded-full"></div>
+              
+              {/* Nodes */}
+              <div className="absolute left-0 right-0 flex justify-between px-1">
+                {[1, 20, 40, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210].map((milestone) => {
+                  // Determine availability logic based on our known missing gaps: 116-150, 166-210
+                  const isAvailable = (milestone <= 115) || (milestone >= 151 && milestone <= 165);
+                  
+                  return (
+                    <div key={milestone} className="relative flex flex-col items-center group">
+                      <div className={`w-3 h-3 rounded-full border-2 ${
+                        isAvailable 
+                          ? "bg-emerald-500 border-zinc-950 shadow-[0_0_8px_rgba(16,185,129,0.5)] z-10" 
+                          : "bg-zinc-900 border-zinc-800 z-0"
+                      }`}></div>
+                      <span className={`absolute top-4 text-[10px] font-mono whitespace-nowrap ${isAvailable ? "text-zinc-400" : "text-zinc-700"}`}>
+                        Day {milestone}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* GRID */}
       <div className="container mx-auto px-6 max-w-7xl py-12">
-        <div className="mb-6 flex justify-between items-end">
-          <h2 className="text-zinc-300 font-medium">
-            {activeTopic === "ALL" ? "All Challenges" : activeTopic}
-          </h2>
-          <span className="text-zinc-500 font-mono text-sm">{filteredChallenges.length} results</span>
+        <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+          <div>
+            <h2 className="text-zinc-300 font-medium text-xl">
+              {activeTopic === "ALL" ? "All Challenges" : activeTopic}
+            </h2>
+            <span className="text-zinc-500 font-mono text-sm">{filteredChallenges.length} results</span>
+          </div>
+          
+          {/* VIEW TOGGLE */}
+          <div className="flex bg-zinc-900/50 border border-zinc-800 p-1 rounded-lg self-stretch sm:self-auto">
+            <button
+              onClick={() => setViewMode("GRID")}
+              className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${
+                viewMode === "GRID" 
+                  ? "bg-zinc-800 text-white shadow-sm" 
+                  : "text-zinc-500 hover:text-zinc-300"
+              }`}
+            >
+              GRID
+            </button>
+            <button
+              onClick={() => setViewMode("TOPICS")}
+              className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${
+                viewMode === "TOPICS" 
+                  ? "bg-zinc-800 text-white shadow-sm" 
+                  : "text-zinc-500 hover:text-zinc-300"
+              }`}
+            >
+              TOPICS
+            </button>
+          </div>
         </div>
 
         {filteredChallenges.length > 0 ? (
-          <motion.div 
-            layout
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-          >
-            <AnimatePresence>
-              {filteredChallenges.map((challenge, i) => (
-                <SqlChallengeCard key={challenge.day} challenge={challenge} index={i} />
-              ))}
-            </AnimatePresence>
-          </motion.div>
+          viewMode === "GRID" ? (
+            <motion.div 
+              layout
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+            >
+              <AnimatePresence>
+                {filteredChallenges.map((challenge, i) => (
+                  <SqlChallengeCard key={challenge.day} challenge={challenge} index={i} />
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          ) : (
+            <div className="space-y-12">
+              {topics.filter(t => t !== "ALL").map((topicName, groupIdx) => {
+                const topicChallenges = filteredChallenges.filter(c => c.topicTitle === topicName);
+                if (topicChallenges.length === 0) return null;
+                
+                return (
+                  <div key={topicName} className="scroll-mt-32">
+                    <div className="flex items-end justify-between border-b border-zinc-800 pb-3 mb-6">
+                      <h3 className="text-lg font-semibold text-white">{topicName}</h3>
+                      <span className="text-emerald-500 font-mono text-xs">{topicChallenges.length} challenges</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {topicChallenges.map((challenge, i) => (
+                        <SqlChallengeCard key={challenge.day} challenge={challenge} index={i} />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )
         ) : (
           <div className="py-24 flex flex-col items-center justify-center border border-dashed border-zinc-800 rounded-xl bg-zinc-900/20">
             <AlertCircle className="w-12 h-12 text-zinc-600 mb-4" />

@@ -31,7 +31,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full flex flex-col bg-zinc-950 text-zinc-100 font-sans">
         <TooltipProvider>
           <Navbar />
-          {children}
+          <div className="flex-1 flex flex-col pt-16">
+            {children}
+          </div>
         </TooltipProvider>
       </body>
     </html>

@@ -3,7 +3,7 @@ import { Hexagon } from 'lucide-react';
 
 export function Navbar() {
   return (
-    <nav className="sticky top-0 z-50 w-full bg-black border-b border-zinc-800">
+    <nav className="fixed top-0 left-0 right-0 z-50 w-full bg-black border-b border-zinc-800">
       <div className="container mx-auto px-6 h-16 flex items-center justify-between">
         <Link href="/" className="font-bold text-xl flex items-center gap-2 group">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-black group-hover:shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-shadow">

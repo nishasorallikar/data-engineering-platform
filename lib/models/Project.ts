@@ -6,6 +6,7 @@ export interface IProject extends Document {
   title: string;
   domain: string;
   summary: string;
+  projectUrl?: string;
   businessProblem: string[];
 
   architecture: {
@@ -86,6 +87,7 @@ const ProjectMongooseSchema = new mongoose.Schema<IProject>({
   title: { type: String, required: true },
   domain: { type: String, required: true },
   summary: { type: String, required: true },
+  projectUrl: { type: String, required: false },
   businessProblem: [{ type: String }],
 
   architecture: {

@@ -4,6 +4,7 @@
   "title": "VoltGrid AU",
   "domain": "EV Charging Infrastructure & Fleet Intelligence",
   "summary": "Australia EV Charging Franchise Intelligence Platform",
+  "projectUrl": "https://github.com/Rahul-Bhoir",
   "businessProblem": [
     "No centralised visibility across franchise stations.",
     "Revenue leakage from billing mismatches.",

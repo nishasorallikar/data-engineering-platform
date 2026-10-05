@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Box, Cloud, Database } from 'lucide-react';
+import { ArrowRight, Box, Cloud, Database, ExternalLink } from 'lucide-react';
 import { ProjectDTO } from '@/lib/dto/projectDto';
 
 interface ProjectCardProps {
@@ -57,7 +57,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
         </div>
       </CardContent>
       
-      <CardFooter className="pt-2">
+      <CardFooter className="pt-2 flex justify-between items-center w-full">
         <Link 
           href={`/projects/${project.slug}`}
           className="inline-flex items-center gap-2 text-sm font-medium text-zinc-300 hover:text-white transition-colors mt-2"
@@ -65,6 +65,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
           Explore Project
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </Link>
+        {project.projectUrl && (
+          <a
+            href={project.projectUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-white transition-colors mt-2 z-10 relative"
+          >
+            <ExternalLink className="w-4 h-4" />
+          </a>
+        )}
       </CardFooter>
     </Card>
   );

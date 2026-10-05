@@ -4,6 +4,7 @@ export type ProjectDTO = {
   title: string;
   domain: string;
   summary: string;
+  projectUrl?: string;
   businessProblem: string[];
 
   architecture: {
@@ -74,6 +75,7 @@ export function toProjectDTO(project: any): ProjectDTO {
     title: project.title,
     domain: project.domain,
     summary: project.summary,
+    projectUrl: project.projectUrl,
     businessProblem: project.businessProblem || [],
     architecture: project.architecture || { type: '', cloud: '', flow: '' },
     sourceSystems: project.sourceSystems || [],
