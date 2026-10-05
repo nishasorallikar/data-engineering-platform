@@ -1,0 +1,310 @@
+{
+  "counts": {
+    "alreadyStructured": 0,
+    "confidentlyExtractable": 0,
+    "ambiguous": 8,
+    "noTable": 42
+  },
+  "results": [
+    {
+      "day": 1,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 2,
+      "tableStatus": "AMBIGUOUS",
+      "reason": "Lacks explicit delimiters",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 3,
+      "tableStatus": "AMBIGUOUS",
+      "reason": "Lacks explicit delimiters",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 4,
+      "tableStatus": "AMBIGUOUS",
+      "reason": "Lacks explicit delimiters",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 5,
+      "tableStatus": "AMBIGUOUS",
+      "reason": "Lacks explicit delimiters",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 6,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 7,
+      "tableStatus": "AMBIGUOUS",
+      "reason": "Lacks explicit delimiters",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 8,
+      "tableStatus": "AMBIGUOUS",
+      "reason": "Lacks explicit delimiters",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 9,
+      "tableStatus": "AMBIGUOUS",
+      "reason": "Lacks explicit delimiters",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 10,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 11,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 12,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 13,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 14,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 15,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 16,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 17,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 18,
+      "tableStatus": "AMBIGUOUS",
+      "reason": "Lacks explicit delimiters",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 19,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 20,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 21,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 22,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 23,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 24,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 25,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 26,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 27,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 28,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 29,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 30,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 31,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 32,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 33,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 34,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 35,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "MISSING"
+    },
+    {
+      "day": 36,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "AMBIGUOUS"
+    },
+    {
+      "day": 37,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "AMBIGUOUS"
+    },
+    {
+      "day": 38,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "AMBIGUOUS"
+    },
+    {
+      "day": 39,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "AMBIGUOUS"
+    },
+    {
+      "day": 40,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "AMBIGUOUS"
+    },
+    {
+      "day": 41,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "AMBIGUOUS"
+    },
+    {
+      "day": 42,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "AMBIGUOUS"
+    },
+    {
+      "day": 43,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "AMBIGUOUS"
+    },
+    {
+      "day": 44,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "AMBIGUOUS"
+    },
+    {
+      "day": 45,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "AMBIGUOUS"
+    },
+    {
+      "day": 46,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "AMBIGUOUS"
+    },
+    {
+      "day": 47,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "AMBIGUOUS"
+    },
+    {
+      "day": 48,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "AMBIGUOUS"
+    },
+    {
+      "day": 49,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "AMBIGUOUS"
+    },
+    {
+      "day": 50,
+      "tableStatus": "NO_TABLE",
+      "reason": "",
+      "eoStatus": "AMBIGUOUS"
+    }
+  ]
+}
