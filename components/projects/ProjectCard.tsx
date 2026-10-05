@@ -12,7 +12,8 @@ interface ProjectCardProps {
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   return (
     <Card className="group relative overflow-hidden bg-background/50 backdrop-blur-sm border-white/10 hover:border-white/20 transition-all duration-300">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <Link href={`/projects/${project.slug}`} className="absolute inset-0 z-10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
       
       <CardHeader className="space-y-4">
         <div className="flex items-start justify-between gap-4">
@@ -58,19 +59,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
       </CardContent>
       
       <CardFooter className="pt-2 flex justify-between items-center w-full">
-        <Link 
-          href={`/projects/${project.slug}`}
-          className="inline-flex items-center gap-2 text-sm font-medium text-zinc-300 hover:text-white transition-colors mt-2"
-        >
+        <div className="inline-flex items-center gap-2 text-sm font-medium text-zinc-300 group-hover:text-white transition-colors mt-2 relative z-10 pointer-events-none">
           Explore Project
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-        </Link>
+        </div>
         {project.projectUrl && (
           <a
             href={project.projectUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-white transition-colors mt-2 z-10 relative"
+            className="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-white transition-colors mt-2 z-20 relative"
           >
             <ExternalLink className="w-4 h-4" />
           </a>
