@@ -100,12 +100,81 @@ export default function SqlChallengeDetail({ challenge, prevDay, nextDay }: SqlC
           <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <Database className="w-5 h-5 text-emerald-400" /> Problem Statement
           </h3>
-          <div className="prose prose-invert prose-emerald max-w-none text-zinc-300 whitespace-pre-wrap leading-relaxed text-sm md:text-base font-sans">
+          <div className="prose prose-invert prose-emerald max-w-none text-zinc-300 whitespace-pre-wrap leading-relaxed text-sm md:text-base font-sans mb-6">
             {challenge.question}
           </div>
+          {challenge.explanation && (
+            <>
+              <h4 className="text-sm font-semibold text-emerald-400 mb-2 mt-4 uppercase tracking-wider">Additional Context & Tables</h4>
+              <div className="prose prose-invert prose-emerald max-w-none text-zinc-400 whitespace-pre-wrap leading-relaxed text-sm font-mono bg-zinc-950/50 p-4 rounded-lg border border-zinc-800">
+                {challenge.explanation}
+              </div>
+            </>
+          )}
         </div>
 
-        {/* 2. SQL WORKSPACE */}
+        {/* 2. DATA PANEL (Moved Above SQL Workspace) */}
+        {/* Only show DATA panel if there's actually structured data parsed */}
+        {(parsedInputTables.length > 0 || parsedExpectedOutput.length > 0) && (
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-2">Data</h3>
+            
+            <div className="border border-zinc-800/80 rounded-xl overflow-hidden bg-zinc-900/30">
+              {/* INPUT TABLES */}
+              {parsedInputTables.length > 0 && (
+                <div className={`${parsedExpectedOutput.length > 0 ? "border-b border-zinc-800/50" : ""}`}>
+                  <button 
+                    onClick={() => setTablesExpanded(!tablesExpanded)}
+                    className="w-full flex items-center justify-between px-6 py-4 hover:bg-zinc-800/30 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Table2 className="w-4 h-4 text-emerald-400" />
+                      <span className="font-semibold text-zinc-200">INPUT TABLES</span>
+                      <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 text-xs font-mono">
+                        {parsedInputTables.length} tables
+                      </span>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform ${tablesExpanded ? "rotate-180" : ""}`} />
+                  </button>
+                  
+                  {tablesExpanded && (
+                    <div className="px-6 pb-6 pt-2 space-y-8 bg-zinc-950/20">
+                      {parsedInputTables.map((table, i) => (
+                        <SqlDataTable key={i} table={table} variant="input" />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* EXPECTED OUTPUT */}
+              {parsedExpectedOutput.length > 0 && (
+                <div>
+                  <button 
+                    onClick={() => setOutputExpanded(!outputExpanded)}
+                    className="w-full flex items-center justify-between px-6 py-4 hover:bg-zinc-800/30 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <ChevronRight className="w-4 h-4 text-emerald-400" />
+                      <span className="font-semibold text-zinc-200">EXPECTED OUTPUT</span>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform ${outputExpanded ? "rotate-180" : ""}`} />
+                  </button>
+                  
+                  {outputExpanded && (
+                    <div className="px-6 pb-6 pt-2 bg-zinc-950/20">
+                      {parsedExpectedOutput.map((table, i) => (
+                        <SqlDataTable key={i} table={table} variant="output" />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 3. SQL WORKSPACE */}
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden flex flex-col">
           {/* Workspace Header / Segmented Control */}
           <div className="flex justify-between items-center border-b border-zinc-800/50 px-4 py-3 bg-zinc-900/80">
@@ -191,72 +260,6 @@ export default function SqlChallengeDetail({ challenge, prevDay, nextDay }: SqlC
                   {activeTab === "PYSPARK" 
                     ? "Solution Overview logic not implemented for PySpark."
                     : "No logical query flow available."}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* 3. DATA PANEL */}
-        <div className="space-y-4">
-          <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-2">Data</h3>
-          
-          <div className="border border-zinc-800/80 rounded-xl overflow-hidden bg-zinc-900/30">
-            {/* INPUT TABLES */}
-            <div className="border-b border-zinc-800/50">
-              <button 
-                onClick={() => setTablesExpanded(!tablesExpanded)}
-                className="w-full flex items-center justify-between px-6 py-4 hover:bg-zinc-800/30 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <Table2 className="w-4 h-4 text-emerald-400" />
-                  <span className="font-semibold text-zinc-200">INPUT TABLES</span>
-                  <span className="px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 text-xs font-mono">
-                    {parsedInputTables.length} tables
-                  </span>
-                </div>
-                <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform ${tablesExpanded ? "rotate-180" : ""}`} />
-              </button>
-              
-              {tablesExpanded && (
-                <div className="px-6 pb-6 pt-2 space-y-8 bg-zinc-950/20">
-                  {parsedInputTables.length > 0 ? (
-                    parsedInputTables.map((table, i) => (
-                      <SqlDataTable key={i} table={table} variant="input" />
-                    ))
-                  ) : (
-                    <div className="text-zinc-500 font-mono text-sm italic">
-                      No explicit table structures provided.
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* EXPECTED OUTPUT */}
-            <div>
-              <button 
-                onClick={() => setOutputExpanded(!outputExpanded)}
-                className="w-full flex items-center justify-between px-6 py-4 hover:bg-zinc-800/30 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <ChevronRight className="w-4 h-4 text-emerald-400" />
-                  <span className="font-semibold text-zinc-200">EXPECTED OUTPUT</span>
-                </div>
-                <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform ${outputExpanded ? "rotate-180" : ""}`} />
-              </button>
-              
-              {outputExpanded && (
-                <div className="px-6 pb-6 pt-2 bg-zinc-950/20">
-                  {parsedExpectedOutput.length > 0 ? (
-                    parsedExpectedOutput.map((table, i) => (
-                      <SqlDataTable key={i} table={table} variant="output" />
-                    ))
-                  ) : (
-                    <div className="text-zinc-500 font-mono text-sm italic">
-                      No expected output provided.
-                    </div>
-                  )}
                 </div>
               )}
             </div>
